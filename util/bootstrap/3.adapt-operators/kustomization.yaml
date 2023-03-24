@@ -1,0 +1,10 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+# namespace: openshift-operators
+bases:
+  - ./argocd-projects
+resources:
+  - 1.gitops-patch.yaml
+  - 2.gitops-rbac.yaml
+  - 3.quay-all-in-one.yaml
+  
