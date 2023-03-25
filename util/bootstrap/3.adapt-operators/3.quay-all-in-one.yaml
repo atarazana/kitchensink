@@ -4,12 +4,12 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: quay-system
-  annotations:
-    openshift.io/node-selector: 'node-role.kubernetes.io/infra='
-    scheduler.alpha.kubernetes.io/defaultTolerations: >-
-      [{"operator": "Exists", "effect": "NoSchedule", "key":
-      "node-role.kubernetes.io/infra"}
-      ]
+  # annotations:
+  #   openshift.io/node-selector: 'node-role.kubernetes.io/infra='
+  #   scheduler.alpha.kubernetes.io/defaultTolerations: >-
+  #     [{"operator": "Exists", "effect": "NoSchedule", "key":
+  #     "node-role.kubernetes.io/infra"}
+  #     ]
 ---
 apiVersion: noobaa.io/v1alpha1
 kind: NooBaa
@@ -45,7 +45,7 @@ spec:
     resources:
       requests:
         storage: 100Gi
-    storageClass: gp2
+    storageClass: gp3-csi
   type: pv-pool
 ---
 apiVersion: v1
@@ -183,7 +183,20 @@ spec:
   template:
     spec:
       containers:
-      - command:
+      - env:
+        - name: QUAY_HOST
+          value: "http://myregistry-quay-app"
+        - name: COUNT
+          value: "99"
+        - name: SLEEP_TIME
+          value: "30"
+        - name: PASSWORD
+          value: openshift
+        - name: ADMIN_USER
+          value: "gramola"
+        - name: ADMIN_PASS
+          value: "openshift"
+        command:
         - /bin/bash
         - -x
         - -c
@@ -229,7 +242,7 @@ spec:
               - default
           ALLOW_PULLS_WITHOUT_STRICT_LOGGING: false
           BROWSER_API_CALLS_XHR_ONLY: false
-          CREATE_PRIVATE_REPO_ON_PUSH: false
+          CREATE_PRIVATE_REPO_ON_PUSH: true
           SUPER_USERS:
               - quayadmin
           AUTHENTICATION_TYPE: Database
@@ -257,38 +270,15 @@ spec:
             components:
               - kind: objectstorage
                 managed: false
-              - kind: postgres
-                managed: true
-              - kind: redis
-                managed: true
-              - kind: horizontalpodautoscaler
-                managed: false
-              - kind: route
-                managed: true
-              - kind: mirror
-                managed: false
-              - kind: monitoring
-                managed: true
-              - kind: tls
-                managed: true
-              - kind: clair
-                managed: true
-              - kind: quay
-                managed: true
-                overrides:
-                  replicas: 1
-              - kind: clairpostgres
-                managed: true
           EOF
           oc create -f  /tmp/quay.yaml
           ## WAIT
-          QUAY_HOST="http://myregistry-quay-app"
           RETURN=0
           retry=0
           while [ $RETURN != "200" ]
           do
             echo "waiting for Quay..."
-            RETURN=$(curl -k -sL -o /dev/null -w "%{http_code}" $QUAY_HOST/health/instance)
+            RETURN=$(curl -k -sSL -o /dev/null -w "%{http_code}" $QUAY_HOST/health/instance)
             sleep 15
             if [[ "$retry" == 10 ]]
             then
@@ -300,12 +290,35 @@ spec:
             ((retry=retry+1))
           done
           ## Create quayadmin user
-          # RETURN=$(curl -X POST -k  $QUAY_HOST/api/v1/user/initialize --header 'Content-Type: application/json' \
-          #   --data '{ "username": "quayadmin", "password":"quaypass123", "email": "quayadmin@example.com", "access_token": true}')
-
-          # curl -X GET -k -H "Authorization: Bearer 38BGAA35SNPBBFLKEPJ3A8R3ARLV0SHJN94U8PDP" \
-          #   $QUAY_HOST/api/v1/superuser/users/
-        image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+          RETURN=$(curl -sS -X POST -k  $QUAY_HOST/api/v1/user/initialize -H 'Content-Type: application/json' \
+            --data '{ "username": "quayadmin", "password":"quaypass123", "email": "quayadmin@example.com", "access_token": true}')
+          echo "RETURN=${RETURN}"
+          ACCESS_TOKEN=$(echo ${RETURN} | jq -r .access_token)
+          if [ -z "${ACCESS_TOKEN}" ] || [ "${ACCESS_TOKEN}" == "null" ]; then
+            echo "ACCESS_TOKEN=${ACCESS_TOKEN} is null"
+            exit 1
+          else
+            echo "ACCESS_TOKEN=${ACCESS_TOKEN}"
+          fi
+          echo "========== Create gramola user ==================="
+          curl -sS $QUAY_HOST/api/v1/user/ \
+            -H "Authorization: Bearer ${ACCESS_TOKEN}"  \
+            -H 'Content-Type: application/json' \
+            --data-raw '{"password":"'${ADMIN_PASS}'","username":"'${ADMIN_USER}'","email":"'${ADMIN_USER}'@ocp.com","repeatPassword":"'${ADMIN_PASS}'"}'
+          echo "========== Users before creating lab users ==========="
+          curl -sS -X GET -k -H "Authorization: Bearer ${ACCESS_TOKEN}" $QUAY_HOST/api/v1/superuser/users/
+          for i in $(seq 1 $COUNT); 
+          do
+            echo "Creating user$i"
+            curl -sS $QUAY_HOST/api/v1/user/ \
+              -H "Authorization: Bearer ${ACCESS_TOKEN}"  \
+              -H 'Content-Type: application/json' \
+              --data-raw '{"password":"'${PASSWORD}'","username":"user'$i'","email":"user'$i'@ocp.com","repeatPassword":"'${PASSWORD}'"}'
+          done
+          echo "========== Users after creating lab users ==========="
+          curl -sS -X GET -k -H "Authorization: Bearer ${ACCESS_TOKEN}" $QUAY_HOST/api/v1/superuser/users/
+        # image: image-registry.openshift-image-registry.svc:5000/openshift/cli:latest
+        image: quay.io/atarazana/jq:0.0.1
         name: quay-config-preparation
         resources: {}
         terminationMessagePath: /dev/termination-log

@@ -3,5 +3,5 @@ kind: Kustomization
 bases:
   - ./0.install-basics
   - ./1.install-openshift-operators
-  # - ./2.install-custom-operators
-  # - ./3.adapt-operators
+  - ./2.install-custom-operators
+  - ./3.adapt-operators

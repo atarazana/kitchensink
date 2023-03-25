@@ -2,24 +2,24 @@ export PROJECT_NAME=kitchensink-s2i
 
 oc new-project ${PROJECT_NAME} 
 
-oc replace --force -f ./util/eap72-image-stream.json
+# oc replace --force -f ./util/eap72-image-stream.json
 
-for resource in \
-  eap72-amq-persistent-s2i.json \
-  eap72-amq-s2i.json \
-  eap72-basic-s2i.json \
-  eap72-https-s2i.json \
-  eap72-sso-s2i.json
-do
-  oc apply -f ./util/${resource}
-done
+# for resource in \
+#   eap72-amq-persistent-s2i.json \
+#   eap72-amq-s2i.json \
+#   eap72-basic-s2i.json \
+#   eap72-https-s2i.json \
+#   eap72-sso-s2i.json
+# do
+#   oc apply -f ./util/${resource}
+# done
 
-oc create secret generic github-creds \
-  --from-literal=username=cvicens \
-  --from-literal=password=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 \
-  --type=kubernetes.io/basic-auth -n ${PROJECT_NAME}
+# oc create secret generic github-creds \
+#   --from-literal=username=cvicens \
+#   --from-literal=password=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 \
+#   --type=kubernetes.io/basic-auth -n ${PROJECT_NAME}
 
-oc annotate secret github-creds 'build.openshift.io/source-secret-match-uri-1=https://github.com/*' -n ${PROJECT_NAME}
+# oc annotate secret github-creds 'build.openshift.io/source-secret-match-uri-1=https://github.com/*' -n ${PROJECT_NAME}
 
 oc new-app --name=kitchensink-db \
   -e POSTGRESQL_USER=luke \
@@ -31,12 +31,11 @@ oc label deployment/kitchensink-db app.kubernetes.io/part-of=kitchensink-app --o
 oc label deployment/kitchensink-db app.openshift.io/runtime=postgresql --overwrite=true -n ${PROJECT_NAME} 
 
 oc new-app --template=eap72-basic-s2i -n ${PROJECT_NAME} \
-  --build-env MAVEN_ARGS_APPEND="-Dcom.redhat.xpaas.repo.jbossorg" \
+ -p MAVEN_ARGS_APPEND="-Dcom.redhat.xpaas.repo.jbossorg" \
  -p APPLICATION_NAME=kitchensink \
- -p IMAGE_STREAM_NAMESPACE=${PROJECT_NAME} \
- -p SOURCE_REPOSITORY_URL=https://github.com/cvicens/eap-quickstarts \
- -p SOURCE_REPOSITORY_REF=7.4.x \
- -p CONTEXT_DIR=kitchensink
+ -p SOURCE_REPOSITORY_URL=https://github.com/atarazana/kitchensink \
+ -p SOURCE_REPOSITORY_REF=main \
+ -p CONTEXT_DIR=.
 
 oc set env dc/kitchensink DB_HOST=kitchensink-db DB_PORT=5432 DB_NAME=kitchensink DB_USERNAME=luke DB_PASSWORD=secret && \
 oc set probe dc/kitchensink --readiness --initial-delay-seconds=90 --failure-threshold=5 && \
@@ -45,13 +44,28 @@ oc set probe dc/kitchensink --liveness --initial-delay-seconds=90 --failure-thre
 oc label dc/kitchensink app.kubernetes.io/part-of=kitchensink-app --overwrite=true -n ${PROJECT_NAME} && \
 oc label dc/kitchensink app.openshift.io/runtime=jboss --overwrite=true -n ${PROJECT_NAME}
 
+oc annotate dc/kitchensink app.openshift.io/connects-to='[{"apiVersion":"apps/v1","kind":"Deployment","name":"kitchensink-db"}]' --overwrite=true -n ${PROJECT_NAME}
+
+# https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.4/html-single/getting_started_with_jboss_eap_for_openshift_container_platform/index#reference_clustering
+
+# cat <<EOF | oc apply -f -
 # ---
 # kind: ConfigMap
 # apiVersion: v1
 # metadata:
-#   name: eap-config
+#   name: eap-cluster-config
 #   namespace: kitchensink-s2i
 # data:
+#   JGROUPS_PING_PROTOCOL=kubernetes.KUBE_PING
+#   KUBERNETES_NAMESPACE=PROJECT_NAME
+#   KUBERNETES_LABELS=application=kitchen-sink
+# ---
+# kind: Secret
+# apiVersion: v1
+# metadata:
+#   name: eap-config
+#   namespace: kitchensink-s2i
+# stringData:
 #   DB_HOST: kitchensink-db
 #   DB_NAME: kitchensink
 #   DB_PASSWORD: secret
@@ -66,9 +80,10 @@ oc label dc/kitchensink app.openshift.io/runtime=jboss --overwrite=true -n ${PRO
 # spec:
 #   applicationImage: 'kitchensink:latest'
 #   envFrom:
-#     - configMapRef:
+#     - secretRef:
 #         name: eap-config
 #   replicas: 1
+# EOF
 
 # oc set probe statefulset/kitchen-sink --readiness --initial-delay-seconds=90 --failure-threshold=5 && \
 # oc set probe statefulset/kitchen-sink --liveness --initial-delay-seconds=90 --failure-threshold=5
