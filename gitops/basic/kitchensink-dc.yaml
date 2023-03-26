@@ -81,11 +81,11 @@ spec:
             - name: OPENSHIFT_DNS_PING_SERVICE_PORT
               value: '8888'
             - name: MQ_CLUSTER_PASSWORD
-              value: qikxvPWi
+              value: qwerqwerqw
             - name: MQ_QUEUES
             - name: MQ_TOPICS
             - name: JGROUPS_CLUSTER_PASSWORD
-              value: 2jNmb3nC
+              value: 24rqeqt34
             - name: AUTO_DEPLOY_EXPLODED
               value: 'false'
             - name: DB_HOST
