@@ -27,7 +27,9 @@ spec:
       syncPolicy:
         automated:
           selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
       source:
-        path: gitops/basic/{{ env }}
+        path: gitops/basic
         repoURL: "https://github.com/atarazana/kitchensink"
         targetRevision: main

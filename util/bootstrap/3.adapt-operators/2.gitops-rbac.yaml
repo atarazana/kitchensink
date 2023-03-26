@@ -34,6 +34,12 @@ rules:
   verbs:
   - '*'
 - apiGroups:
+  - build.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
   - route.openshift.io
   resources:
   - '*'

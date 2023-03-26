@@ -28,7 +28,6 @@ spec:
           - kitchensink
         from:
           kind: ImageStreamTag
-          namespace: demo-2
           name: 'kitchensink:latest'
     - type: ConfigChange
   replicas: 1
