@@ -43,7 +43,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: kitchensink-database-secret
-                  key: DB_USER
+                  key: DB_USERNAME
           resources: {}
           terminationMessagePath: /dev/termination-log
           terminationMessagePolicy: File
