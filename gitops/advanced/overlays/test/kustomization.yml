@@ -12,10 +12,10 @@ secretGenerator:
   - name: kitchensink-database-secret
     behavior: replace
     literals:
-      - DB_HOST=kitchensink
+      - DB_HOST=kitchensink-db
       - DB_USERNAME=luke
       - DB_PASSWORD=secret
-      - DB_NAME=kitchensink-db
+      - DB_NAME=kitchensink
 # images:
 #   - name: gramola-events:0.0.0
 #     newName: quay.io/atarazana/gramola-events@sha256
