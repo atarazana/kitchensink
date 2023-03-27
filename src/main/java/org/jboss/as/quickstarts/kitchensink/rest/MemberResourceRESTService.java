@@ -16,11 +16,14 @@
  */
 package org.jboss.as.quickstarts.kitchensink.rest;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.enterprise.context.RequestScoped;
@@ -65,9 +68,18 @@ public class MemberResourceRESTService {
     @Inject
     MemberRegistration registration;
 
+    
+    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Member> listAllMembers() {
+        try {
+            InetAddress ip = InetAddress.getLocalHost();
+            log.info("listAllMembers() from " + ip.getHostName());
+        } catch (UnknownHostException e) {
+            log.severe("UnknownHostException: " + e.getMessage());
+        }
+        
         return repository.findAllOrderedByName();
     }
 
