@@ -13,7 +13,7 @@ secretGenerator:
     behavior: replace
     literals:
       - DB_HOST=kitchensink
-      - DB_USER=luke
+      - DB_USERNAME=luke
       - DB_PASSWORD=secret
       - DB_NAME=kitchensink-db
 # images:
