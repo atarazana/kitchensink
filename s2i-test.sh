@@ -50,6 +50,24 @@ oc annotate dc/kitchensink app.openshift.io/connects-to='[{"apiVersion":"apps/v1
 
 # cat <<EOF | oc apply -f -
 # ---
+# kind: Service
+# apiVersion: v1
+# spec:
+#     publishNotReadyAddresses: true
+#     clusterIP: None
+#     ports:
+#     - name: ping
+#       port: 8888
+#     selector:
+#       app.kubernetes.io/managed-by: eap-operator
+#       app.kubernetes.io/name: kitchen-sink
+#       app.openshift.io/runtime: eap
+# metadata:
+#     name: kitchen-sink-ping
+#     annotations:
+#         service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+#         description: "The JGroups ping port for clustering."
+# ---
 # kind: ConfigMap
 # apiVersion: v1
 # metadata:
