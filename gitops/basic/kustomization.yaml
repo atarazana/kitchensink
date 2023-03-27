@@ -5,10 +5,10 @@ commonLabels:
   app.kubernetes.io/managed-by: argocd
 
 resources:
-- kitchensink-bc.yaml
-- kitchensink-db-deployment.yaml
-- kitchensink-db-svc.yaml
-- kitchensink-dc.yaml
-- kitchensink-is.yaml
-- kitchensink-route.yaml
-- kitchensink-svc.yaml
+- ./base/kitchensink-bc.yaml
+- ./base/kitchensink-db-deployment.yaml
+- ./base/kitchensink-db-svc.yaml
+- ./base/kitchensink-dc.yaml
+- ./base/kitchensink-is.yaml
+- ./base/kitchensink-route.yaml
+- ./base/kitchensink-svc.yaml
