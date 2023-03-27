@@ -2,7 +2,7 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 bases:
   - ../../helm_base
-namespace: demo-5-dev
+namespace: demo-7-dev
 commonLabels:
   app.kubernetes.io/part-of: kitchensink-app
   app.kubernetes.io/managed-by: argocd
