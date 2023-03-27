@@ -6,8 +6,11 @@ namespace: demo-5-dev
 commonLabels:
   app.kubernetes.io/part-of: kitchensink-app
   app.kubernetes.io/managed-by: argocd
+# generatorOptions:
+#   disableNameSuffixHash: true
 secretGenerator:
   - name: kitchensink-database-secret
+    behavior: replace
     literals:
       - DB_HOST=kitchensink
       - DB_USER=luke

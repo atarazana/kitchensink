@@ -1,4 +1,6 @@
 old
+old.*
+all.yml
 .dccache
 *~
 build

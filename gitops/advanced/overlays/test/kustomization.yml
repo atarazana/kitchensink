@@ -8,6 +8,7 @@ commonLabels:
   app.kubernetes.io/managed-by: argocd
 secretGenerator:
   - name: kitchensink-database-secret
+    behavior: replace
     literals:
       - DB_HOST=kitchensink
       - DB_USER=luke
