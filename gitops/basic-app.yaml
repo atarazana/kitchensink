@@ -18,7 +18,7 @@ spec:
       kind: DeploymentConfig
   project: default
   source:
-    path: gitops/basic
+    path: gitops/basic/base
     repoURL: 'https://github.com/atarazana/kitchensink'
     targetRevision: main
   syncPolicy:
