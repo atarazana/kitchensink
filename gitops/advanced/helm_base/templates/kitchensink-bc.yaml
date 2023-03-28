@@ -67,7 +67,7 @@ spec:
   output:
     to:
       kind: DockerImage
-      name: 'myregistry-quay-app.quay-system/kitchensink:latest'
+      name: 'myregistry-quay-app.quay-system/demos/kitchensink:latest'
     pushSecret:
       name: quay-creds
   resources: {}

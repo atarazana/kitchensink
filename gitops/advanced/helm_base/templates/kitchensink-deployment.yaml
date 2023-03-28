@@ -94,7 +94,7 @@ spec:
               protocol: TCP
           imagePullPolicy: Always
           terminationMessagePolicy: File
-          image: image-registry.openshift-image-registry.svc:5000/demo-3/kitchensink:latest
+          image: myregistry-quay-app.quay-system/demos/kitchensink:latest
       restartPolicy: Always
       terminationGracePeriodSeconds: 75
       dnsPolicy: ClusterFirst
