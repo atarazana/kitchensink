@@ -193,7 +193,7 @@ spec:
         - name: PASSWORD
           value: openshift
         - name: ADMIN_USER
-          value: "gramola"
+          value: "quayadmin"
         - name: ADMIN_PASS
           value: "openshift"
         command:
