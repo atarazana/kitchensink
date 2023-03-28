@@ -18,7 +18,6 @@ spec:
     type: Recreate
   replicas: 1
   revisionHistoryLimit: 10
-  test: false
   selector:
     matchLabels:
       deployment: kitchensink
