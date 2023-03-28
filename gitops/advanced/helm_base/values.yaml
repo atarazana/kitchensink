@@ -2,5 +2,5 @@
 debug: false
 clusterName: "local"
 
-baseNsName: demo-6
+baseNamespace: demo-6
 builderImage: jboss-eap72-openshift:1.2

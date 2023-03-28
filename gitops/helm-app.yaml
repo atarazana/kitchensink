@@ -20,7 +20,7 @@ spec:
   source:
     helm:
       parameters:
-        - name: baseNsName
+        - name: baseNamespace
           value: demo-6
     path: gitops/advanced/helm_base
     repoURL: 'https://github.com/atarazana/kitchensink'
