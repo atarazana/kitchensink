@@ -45,5 +45,7 @@ spec:
         plugin:
           env:
             - name: DEBUG
-              value: "false"
+              value: 'false'
+            - name: BASE_NAMESPACE
+              value: '{{ ns }}'
           name: kustomized-helm

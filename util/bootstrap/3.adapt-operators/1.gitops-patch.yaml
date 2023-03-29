@@ -38,7 +38,7 @@ spec:
         args: ["helm dependency build ../../helm_base || true"]
       generate:
         command: ["/bin/sh", "-c"]
-        args: ["helm template ../../helm_base --name-template $ARGOCD_APP_NAME --set debug=${DEBUG},clusterName=${DESTINATION_NAME},gitUrl=${GIT_URL},gitUsername=${GIT_USERNAME},baseRepoName=${BASE_REPO_NAME},gitRevision=${GIT_REVISION}  --include-crds > ../../helm_base/all.yml && kustomize build"]        
+        args: ["helm template ../../helm_base --name-template $ARGOCD_APP_NAME --set debug=${DEBUG},baseNamespace=${BASE_NAMESPACE},clusterName=${DESTINATION_NAME},gitUrl=${GIT_URL},gitUsername=${GIT_USERNAME},baseRepoName=${BASE_REPO_NAME},gitRevision=${GIT_REVISION}  --include-crds > ../../helm_base/all.yml && kustomize build"]        
     - name: kustomized-helm-metro
       init:
         command: ["/bin/sh", "-c"]
