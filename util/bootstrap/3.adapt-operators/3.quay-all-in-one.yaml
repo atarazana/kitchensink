@@ -192,10 +192,14 @@ spec:
           value: "30"
         - name: PASSWORD
           value: openshift
+        - name: ALPHA_USER
+          value: "alpha"
+        - name: ALPHA_PASS
+          value: "openshift"
         - name: ADMIN_USER
           value: "quayadmin"
         - name: ADMIN_PASS
-          value: "openshift"
+          value: "quay123."
         command:
         - /bin/bash
         - -x
@@ -291,7 +295,7 @@ spec:
           done
           ## Create quayadmin user
           RETURN=$(curl -sS -X POST -k  $QUAY_HOST/api/v1/user/initialize -H 'Content-Type: application/json' \
-            --data '{ "username": "quayadmin", "password":"quaypass123", "email": "quayadmin@example.com", "access_token": true}')
+            --data '{ "username": "'${ADMIN_USER}'", "password":"'${ADMIN_PASS}'", "email": "quayadmin@example.com", "access_token": true}')
           echo "RETURN=${RETURN}"
           ACCESS_TOKEN=$(echo ${RETURN} | jq -r .access_token)
           if [ -z "${ACCESS_TOKEN}" ] || [ "${ACCESS_TOKEN}" == "null" ]; then
@@ -300,11 +304,11 @@ spec:
           else
             echo "ACCESS_TOKEN=${ACCESS_TOKEN}"
           fi
-          echo "========== Create gramola user ==================="
+          echo "========== Create alpha user ==================="
           curl -sS $QUAY_HOST/api/v1/user/ \
             -H "Authorization: Bearer ${ACCESS_TOKEN}"  \
             -H 'Content-Type: application/json' \
-            --data-raw '{"password":"'${ADMIN_PASS}'","username":"'${ADMIN_USER}'","email":"'${ADMIN_USER}'@ocp.com","repeatPassword":"'${ADMIN_PASS}'"}'
+            --data-raw '{"password":"'${ALPHA_PASS}'","username":"'${ALPHA_USER}'","email":"'${ALPHA_USER}'@ocp.com","repeatPassword":"'${ALPHA_PASS}'"}'
           echo "========== Users before creating lab users ==========="
           curl -sS -X GET -k -H "Authorization: Bearer ${ACCESS_TOKEN}" $QUAY_HOST/api/v1/superuser/users/
           for i in $(seq 1 $COUNT); 
