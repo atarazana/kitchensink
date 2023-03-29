@@ -22,8 +22,8 @@ secretGenerator:
 #     newTag: d833e14ed4751911ae153a80f56820ce04880aa6d8dbdc73f704f2303c365ad4
 patchesJson6902:
   - target:
-      group: apps.openshift.io
+      group: apps
       version: v1
-      kind: DeploymentConfig
+      kind: Deployment
       name: kitchensink
     path: patch/deployment_patch.yml
