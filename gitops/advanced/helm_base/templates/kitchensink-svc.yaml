@@ -24,7 +24,7 @@ spec:
   ipFamilyPolicy: SingleStack
   sessionAffinity: None
   selector:
-    deploymentConfig: kitchensink
+    deployment: kitchensink
 ---
 kind: Service
 apiVersion: v1
