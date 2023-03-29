@@ -14,9 +14,9 @@ secretGenerator:
       - DB_PASSWORD=secret
       - DB_NAME=EVENTS
 # images:
-#   - name: gramola-events:0.0.0
-#     newName: quay.io/atarazana/gramola-events@sha256
-#     newTag: d833e14ed4751911ae153a80f56820ce04880aa6d8dbdc73f704f2303c365ad4
+#   - name: kitchensink:0.0.0
+#     newName: image-registry.openshift-image-registry.svc:5000/demo-5-dev/kitchensink
+#     newTag: latest
 patchesJson6902:
   - target:
       group: apps.openshift.io
