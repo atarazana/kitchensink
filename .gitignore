@@ -34,3 +34,4 @@ atlassian-ide-plugin.xml
 .nbattrs
 *.log
 build.metadata
+.vscode

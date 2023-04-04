@@ -5,3 +5,4 @@ bases:
   - ./1.install-openshift-operators
   - ./2.install-custom-operators
   - ./3.adapt-operators
+  - ./4-install-gitea

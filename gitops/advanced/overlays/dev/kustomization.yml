@@ -6,6 +6,7 @@ namespace: demo-7-dev
 commonLabels:
   app.kubernetes.io/part-of: kitchensink-app
   app.kubernetes.io/managed-by: argocd
+  productive: 'false'
 # generatorOptions:
 #   disableNameSuffixHash: true
 secretGenerator:
