@@ -1,0 +1,59 @@
+schemaVersion: 2.1.0
+metadata:
+  name: kitchensink
+  namespace: admin-devspaces
+attributes:
+  controller.devfile.io/devworkspace-config:
+    name: devworkspace-config
+    namespace: openshift-operators
+  controller.devfile.io/storage-type: per-user
+projects:
+  - git:
+      remotes:
+        origin: 'https://github.com/atarazana/kitchensink'
+    name: kintchensink
+components:
+  - attributes:
+      controller.devfile.io/merge-contribution: true
+    container:
+      endpoints:
+        - exposure: none
+          name: debug
+          protocol: tcp
+          targetPort: 5005
+        - exposure: public
+          name: hello-greeting-endpoint
+          path: /hello/greeting/devspaces-user
+          protocol: http
+          targetPort: 8080
+      env:
+        - name: QUARKUS_HTTP_HOST
+          value: 0.0.0.0
+        - name: CHE_DASHBOARD_URL
+          value: 'https://devspaces.apps.cluster-j46fg.j46fg.sandbox1745.opentlc.com'
+        - name: CHE_PLUGIN_REGISTRY_URL
+          value: 'https://devspaces.apps.cluster-j46fg.j46fg.sandbox1745.opentlc.com/plugin-registry/v3'
+        - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
+          value: 'http://plugin-registry.openshift-operators.svc:8080/v3'
+        - name: OPENVSX_REGISTRY_URL
+          value: 'https://open-vsx.org'
+      image: 'registry.redhat.io/devspaces/udi-rhel8@sha256:99ff1b5c541855e4cf368816c4bcdcdc86d32304023f72c4443213a4032ef05b'
+      memoryLimit: 4G
+      mountSources: true
+      sourceMapping: /projects
+      volumeMounts:
+        - name: m2
+          path: /home/user/.m2
+    name: tools
+  - name: m2
+    volume:
+      size: 1G
+commands:
+  - exec:
+      commandLine: mvn package
+      component: tools
+      group:
+        isDefault: true
+        kind: build
+      workingDir: '${PROJECTS_ROOT}/kitchensink'
+    id: 1-package
