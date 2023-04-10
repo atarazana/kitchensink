@@ -36,3 +36,4 @@ atlassian-ide-plugin.xml
 build.metadata
 .vscode
 *.token
+*.old
