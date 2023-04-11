@@ -53,3 +53,5 @@ SECRET!
 
 
 ./util/create-registry-secret.sh demo-6 myregistry-quay-app.quay-system demos demos+cicd 9QS9LSMK1DR15I9TJVAZ5LOXB6XRK991D9MN1ZQU4ASB13CXB13Z6ABKYV7B8TT0 quay-creds
+
+test
