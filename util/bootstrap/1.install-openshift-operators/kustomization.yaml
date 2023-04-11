@@ -6,4 +6,5 @@ resources:
   - 1.gitops-sub.yaml
   - 2.pipelines-sub.yaml
   - 3.quay-sub.yaml
+  - 4.devspaces-sub.yaml
   
