@@ -8,4 +8,6 @@ resources:
   - 2.gitops-rbac.yaml
   - 3.quay-all-in-one.yaml
   - 4.devspaces-cluster.yaml
+  - 5.openshift-logging.yaml
+  - 6.cluster-monitoring.yaml
   
