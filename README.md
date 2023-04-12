@@ -1,25 +1,13 @@
 
+[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://.apps.cluster-j46fg.j46fg.sandbox1745.opentlc.com/#https://github.com/atarazana/kitchensink.git)
+
 ```sh
 until oc apply -k util/bootstrap/; do sleep 2; done
 ```
 
 ```sh
-
+ ./util/create-checluster-github-service.sh ${GH_OAUTH_CLIENT_ID} ${GH_OAUTH_CLIENT_SECRET}
 ```
-
-
-https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.1/html-single/red_hat_jboss_enterprise_application_platform_for_openshift/index#Runtime-Artifacts
-
-
-./extensions/db.env in ConfigMape
-
-Volume points to ConfigMap
-Mount volune in /datasources/
-
-ENV_FILE=/datasrouces/db.env
-
-READ THIS >>>>> https://access.redhat.com/solutions/127713
-
 
 # EAP Kitchen sink application using external MySQL database.
 
