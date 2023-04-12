@@ -3,6 +3,10 @@
 until oc apply -k util/bootstrap/; do sleep 2; done
 ```
 
+```sh
+
+```
+
 
 https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.1/html-single/red_hat_jboss_enterprise_application_platform_for_openshift/index#Runtime-Artifacts
 

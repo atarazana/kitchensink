@@ -11,7 +11,7 @@ spec:
       logLevel: INFO
     dashboard:
       headerMessage:
-        show: true
+        show: false
         text: >-
           Microsoft Visual Studio Code - Open Source is the default <a
           href='https://access.redhat.com/documentation/en-us/red_hat_openshift_dev_spaces/3.5/html-single/user_guide/index#selecting-a-workspace-ide'>editor</a>
@@ -35,7 +35,8 @@ spec:
     maxNumberOfWorkspacesPerUser: -1
     containerBuildConfiguration:
       openShiftSecurityContextConstraint: container-build
-    disableContainerBuildCapabilities: true
+    # disableContainerBuildCapabilities: true
+    disableContainerBuildCapabilities: false
     defaultEditor: che-incubator/che-code/latest
     defaultComponents:
       - container:
