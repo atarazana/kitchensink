@@ -1,7 +1,6 @@
 schemaVersion: 2.1.0
 metadata:
-  name: kitchensink
-  namespace: admin-devspaces
+  generateName: kitchensink-
 attributes:
   controller.devfile.io/devworkspace-config:
     name: devworkspace-config
@@ -48,7 +47,7 @@ components:
       sourceMapping: /projects
       volumeMounts:
         - name: m2
-          path: /home/user/.m2
+          path: /home/jboss/.m2
     name: tools
   - name: m2
     volume:
