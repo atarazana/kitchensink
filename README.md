@@ -1,12 +1,12 @@
 
-[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://devspaces.apps.cluster-rvbjn.rvbjn.sandbox1490.opentlc.com/#https://github.com/atarazana/kitchensink.git)
+[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://devspaces.apps.cluster-5k9m9.5k9m9.sandbox3072.opentlc.com/#https://github.com/atarazana/kitchensink.git)
 
 ```sh
 until oc apply -k util/bootstrap/; do sleep 2; done
 ```
 
 ```sh
- ./util/create-checluster-github-service.sh ${GH_OAUTH_CLIENT_ID} ${GH_OAUTH_CLIENT_SECRET}
+./util/create-checluster-github-service.sh ${GH_OAUTH_CLIENT_ID} ${GH_OAUTH_CLIENT_SECRET}
 ```
 
 # EAP Kitchen sink application using external MySQL database.
