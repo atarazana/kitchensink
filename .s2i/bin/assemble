@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo ">>>>>>> Custom assemble <<<<<<"
+echo ">>>>>>> Running custom assemble <<<<<<"
 
 set -e
 
@@ -14,4 +14,7 @@ source "${JBOSS_CONTAINER_EAP_S2I_MODULE}/s2i-core-hooks"
 maven_s2i_build
 
 echo ">>>>>>> Installing Keycloak client adapter <<<<<<"
-${JBOSS_HOME}/bin/jboss-cli.sh --file="${injected_dir}/adapter-elytron-install-offline.cli"
+echo "Running from: $(pwd)"
+echo "JBOSS_HOME=${JBOSS_HOME}"
+ls ${JBOSS_HOME}/extensions
+${JBOSS_HOME}/bin/jboss-cli.sh --file="${JBOSS_HOME}/extensions/adapter-elytron-install-offline.cli"
