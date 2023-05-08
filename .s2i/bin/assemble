@@ -1,6 +1,6 @@
 #!/bin/sh
 
-echo ">>>>>>> Running custom assemble <<<<<<"
+echo ">>>>>>> Running custom assemble (1) <<<<<<"
 
 set -e
 
@@ -13,8 +13,7 @@ source "${JBOSS_CONTAINER_EAP_S2I_MODULE}/s2i-core-hooks"
 # invoke the build
 maven_s2i_build
 
-echo ">>>>>>> Installing Keycloak client adapter <<<<<<"
-echo "Running from: $(pwd)"
-echo "JBOSS_HOME=${JBOSS_HOME}"
-ls ${JBOSS_HOME}/extensions
-${JBOSS_HOME}/bin/jboss-cli.sh --file="${JBOSS_HOME}/extensions/adapter-elytron-install-offline.cli"
+# echo ">>>>>>> Installing Keycloak client adapter <<<<<<"
+# echo "Running from: $(pwd)"
+# echo "JBOSS_HOME=${JBOSS_HOME}"
+# ${JBOSS_HOME}/bin/jboss-cli.sh --file="${JBOSS_HOME}/extensions/adapter-elytron-install-saml-offline.cli"

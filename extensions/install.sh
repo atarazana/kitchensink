@@ -16,4 +16,4 @@ configure_drivers ${injected_dir}/driver-oracle.env
 cp -rf ${injected_dir} $JBOSS_HOME/extensions
 
 # ${JBOSS_HOME}/bin/jboss-cli.sh --file="${injected_dir}/config-system-properties-empty.cli"
-# ${JBOSS_HOME}/bin/jboss-cli.sh --file="${injected_dir}/adapter-elytron-install-offline.cli"
+# ${JBOSS_HOME}/bin/jboss-cli.sh --file="${injected_dir}/adapter-elytron-install-saml-offline.cli"
