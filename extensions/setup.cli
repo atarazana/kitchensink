@@ -73,6 +73,22 @@ else
     echo Undertow already configured with Keycloak
 end-if
 
+
+# Add the WAR that is protected with SAML
+/subsystem=keycloak-saml/secure-deployment=ROOT.war:add()
+
+# Add SAML Service Provider
+/subsystem=keycloak-saml/secure-deployment=ROOT.war/SP="https://serviciosappdes.metromadrid.es/gesreve/":add( \
+  logoutPage="/logout.jsp",sslPolicy="EXTERNAL",nameIDPolicyFormat="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", \
+  forceAuthentication="false",isPassive="false",turnOffChangeSessionIdOnLogin="false", \
+  RoleIdentifiers=["role","member","memberOf","http://schemas.microsoft.com/ws/2008/06/identity/claims/role","http://schemas.microsoft.com/ws/2008/06/identity/claims/memberof"], \
+  PrincipalNameMapping-attribute-name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", PrincipalNameMapping-policy="FROM_ATTRIBUTE")
+
+# Add SAML Identity Provider
+/subsystem=keycloak-saml/secure-deployment=ROOT.war/SP="https://serviciosappdes.metromadrid.es/gesreve/"/IDP="http://sts.metromadrid.net/adfs/services/trust":add(signaturesRequired="false",signatureAlgorithm="RSA_SHA256",signatureCanonicalizationMethod="http://www.w3.org/2001/10/xml-exc-c14n#",\
+  SingleSignOnService={requestBinding="POST",bindingUrl="https://sts.metromadrid.net/adfs/ls/"},\
+  SingleLogoutService={validateRequestSignature="false",validateResponseSignature="false",signRequest="true",signResponse="false",requestBinding="POST",responseBinding="POST",postBindingUrl="https://sts.metromadrid.net/adfs/ls/",redirectBindingUrl="https://serviciosappdes.metromadrid.es/gesreve/saml"})
+
 quit
 
 
