@@ -1,0 +1,6 @@
+.old
+.idea
+.vscode
+ext-compilation
+*.log
+*.old
