@@ -9,7 +9,7 @@ sudo podman run -it --rm \
   -e DB_USERNAME=luke \
   -e DB_PASSWORD=secret \
   -p 8080:8080 \
-  --name kitchensink ${USE_POD} localhost/kitchensink:latest bash
+  --name kitchensink ${USE_POD} localhost/kitchensink:latest /usr/local/s2i/run
 
 
 

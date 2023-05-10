@@ -4,3 +4,4 @@
 ext-compilation
 *.log
 *.old
+target

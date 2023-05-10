@@ -1,11 +1,13 @@
 
 embed-server --std-out=echo --server-config=standalone-openshift.xml
 
-/subsystem=logging/logger=saer-linea:add(use-parent-handlers=false)
-/subsystem=logging/logger=saer-linea:write-attribute(name=level, value=INFO)
-/subsystem=logging/logger=saer-linea:add-handler(name=CONSOLE)
-
-if (outcome == success) of /subsystem=datasources/data-source=kitchensink:add(jndi-name="java:jboss/jdbc/kitchensink",connection-url="jdbc:postgresql://${env.DB_HOST}:${env.DB_PORT:5432}/${env.DB_NAME:kitchensink}",driver-name=postgresql,user-name=${env.DB_USERNAME},password=${env.DB_PASSWORD},validate-on-match=true,valid-connection-checker-class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker",exception-sorter-class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter")
+if (outcome == success) of /subsystem=datasources/data-source=kitchensink:add( \
+    jndi-name="java:jboss/jdbc/kitchensink", \
+    connection-url="jdbc:postgresql://${env.DB_HOST}:${env.DB_PORT:5432}/${env.DB_NAME:kitchensink}", \
+    driver-name=postgresql,user-name=${env.DB_USERNAME},password=${env.DB_PASSWORD}, \
+    validate-on-match=true, \
+    valid-connection-checker-class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLValidConnectionChecker", \
+    exception-sorter-class-name="org.jboss.jca.adapters.jdbc.extensions.postgres.PostgreSQLExceptionSorter")
     echo Kitchensink datasource created
 end-if
 
@@ -73,20 +75,26 @@ else
     echo Undertow already configured with Keycloak
 end-if
 
-
+# https://www.keycloak.org/docs/latest/securing_apps/#_saml_jboss_adapter
 # Add the WAR that is protected with SAML
 if (outcome == success) of /subsystem=keycloak-saml/secure-deployment=ROOT.war:add()
     # Add SAML Service Provider
-    /subsystem=keycloak-saml/secure-deployment=ROOT.war/SP="https://serviciosappdes.metromadrid.es/gesreve/":add( \
-    logoutPage="/logout.jsp",sslPolicy="EXTERNAL",nameIDPolicyFormat="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", \
-    forceAuthentication="false",isPassive="false",turnOffChangeSessionIdOnLogin="false", \
-    RoleIdentifiers=["role","member","memberOf","http://schemas.microsoft.com/ws/2008/06/identity/claims/role","http://schemas.microsoft.com/ws/2008/06/identity/claims/memberof"], \
-    PrincipalNameMapping-attribute-name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", PrincipalNameMapping-policy="FROM_ATTRIBUTE")
+    /subsystem=keycloak-saml/secure-deployment=ROOT.war/SP="${env.SP_URL:https://serviciosappdes.metromadrid.es/gesreve/}":add( \
+        logoutPage="/logout.jsp",sslPolicy="EXTERNAL",nameIDPolicyFormat="urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified", \
+        forceAuthentication="false",isPassive="false",turnOffChangeSessionIdOnLogin="false", \
+        RoleIdentifiers=["role","member","memberOf","http://schemas.microsoft.com/ws/2008/06/identity/claims/role","http://schemas.microsoft.com/ws/2008/06/identity/claims/memberof"], \
+        PrincipalNameMapping-attribute-name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", PrincipalNameMapping-policy="FROM_ATTRIBUTE")
 
     # Add SAML Identity Provider
-    /subsystem=keycloak-saml/secure-deployment=ROOT.war/SP="https://serviciosappdes.metromadrid.es/gesreve/"/IDP="http://sts.metromadrid.net/adfs/services/trust":add(signaturesRequired="false",signatureAlgorithm="RSA_SHA256",signatureCanonicalizationMethod="http://www.w3.org/2001/10/xml-exc-c14n#",\
-    SingleSignOnService={requestBinding="POST",bindingUrl="https://sts.metromadrid.net/adfs/ls/"},\
-    SingleLogoutService={validateRequestSignature="false",validateResponseSignature="false",signRequest="true",signResponse="false",requestBinding="POST",responseBinding="POST",postBindingUrl="https://sts.metromadrid.net/adfs/ls/",redirectBindingUrl="https://serviciosappdes.metromadrid.es/gesreve/saml"})
+    /subsystem=keycloak-saml/secure-deployment=ROOT.war/SP="${env.SP_URL:https://serviciosappdes.metromadrid.es/gesreve/}"/IDP="${env.IDP_URL:http://sts.metromadrid.net/adfs/services/trust}":add( \
+        signaturesRequired="false",signatureAlgorithm="RSA_SHA256",signatureCanonicalizationMethod="http://www.w3.org/2001/10/xml-exc-c14n#",\
+        SingleSignOnService={requestBinding="POST",bindingUrl="${env.IDP_SSO_BINDING_URL:https://sts.metromadrid.net/adfs/ls/}"},\
+        SingleLogoutService={
+            validateRequestSignature="false", \
+            validateResponseSignature="false",signRequest="true",signResponse="false",requestBinding="POST",responseBinding="POST", \
+            postBindingUrl="${env.IDP_SLS_POST_BINDING_URL:https://sts.metromadrid.net/adfs/ls/}",\
+            redirectBindingUrl="${env.IDP_SLS_REDIRECT_BINDING_URL:https://serviciosappdes.metromadrid.es/gesreve/saml}" \
+        })
 else
     echo Error protecting ROOT.war
 end-if
