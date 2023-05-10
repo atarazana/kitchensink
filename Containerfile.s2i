@@ -1,0 +1,24 @@
+FROM registry.redhat.io/jboss-eap-7/eap72-openshift
+LABEL "io.openshift.s2i.build.commit.ref"="keycloak" \
+      "io.openshift.s2i.build.commit.message"="echos" \
+      "io.openshift.s2i.build.source-location"="/var/home/cvicensa/Projects/openshift/atarazana/kitchensink/." \
+      "io.k8s.display-name"="kitchensink:latest" \
+      "io.openshift.s2i.build.image"="registry.redhat.io/jboss-eap-7/eap72-openshift" \
+      "io.openshift.s2i.build.commit.author"="cvicens <carlos.vicens.alonso@gmail.com>" \
+      "io.openshift.s2i.build.commit.date"="Mon May 8 15:47:48 2023 +0200" \
+      "io.openshift.s2i.build.commit.id"="4e0bf0f2989ba996103140f7ca6d13b0ba01a6f9"
+ENV CUSTOM_INSTALL_DIRECTORIES="extensions" \
+    CUSTOM_INSTALL_DIRECTORIES="extensions" \
+    MAVEN_ARGS_APPEND="-Dcom.redhat.xpaas.repo.jbossorg"
+USER root
+# Copying in source code
+COPY . /tmp/src
+# Change file ownership to the assemble user. Builder image must support chown command.
+RUN chown -R 1001:0 /tmp/src
+USER 1001
+# Assemble script sourced from builder image based on user input or image metadata.
+# If this file does not exist in the image, the build will fail.
+RUN /usr/local/s2i/assemble
+# Run script sourced from builder image based on user input or image metadata.
+# If this file does not exist in the image, the build will fail.
+CMD /usr/local/s2i/run
