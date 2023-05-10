@@ -5,6 +5,7 @@ set -o errexit
 if [ -z $1 ] || [ -z $2 ];
 then 
     printf "%s %s %s\n" "$0" '${GH_OAUTH_CLIENT_ID}' '${GH_OAUTH_CLIENT_SECRET}'
+    echo "You have to follow these intructions => https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che"
     exit 1
 fi
 
