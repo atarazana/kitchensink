@@ -1,5 +1,5 @@
 
-[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://devspaces.apps.cluster-5k9m9.5k9m9.sandbox3072.opentlc.com/#https://github.com/atarazana/kitchensink.git)
+[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://devspaces.apps.cluster-bzcxc.bzcxc.sandbox722.opentlc.com/#https://github.com/atarazana/kitchensink.git)
 
 ```sh
 until oc apply -k util/bootstrap/; do sleep 2; done
