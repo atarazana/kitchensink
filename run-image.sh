@@ -1,6 +1,6 @@
 #!/bin/sh
 
-podman run -it --rm \
+podman run -it --rm --name jboss \
   -e DB_HOST=192.168.50.17 \
   -e DB_PORT=5432 \
   -e DB_NAME=kitchensink \
