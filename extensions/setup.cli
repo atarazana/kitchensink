@@ -76,6 +76,7 @@ else
 end-if
 
 # https://www.keycloak.org/docs/latest/securing_apps/#_saml_jboss_adapter
+# https://access.redhat.com/documentation/es-es/red_hat_single_sign-on/7.5/html/red_hat_single_sign-on_for_openshift/tutorials#Example-EAP-Manual
 # Add the WAR that is protected with SAML
 if (outcome == success) of /subsystem=keycloak-saml/secure-deployment=ROOT.war:add()
     # Add SAML Service Provider
