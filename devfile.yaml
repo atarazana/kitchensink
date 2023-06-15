@@ -1,6 +1,6 @@
 schemaVersion: 2.1.0
 metadata:
-  generateName: kitchensink-
+  generateName: kitchensink
 attributes:
   controller.devfile.io/devworkspace-config:
     name: devworkspace-config
