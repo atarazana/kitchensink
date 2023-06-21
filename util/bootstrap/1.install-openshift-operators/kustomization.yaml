@@ -7,4 +7,5 @@ resources:
   - 2.pipelines-sub.yaml
   - 3.quay-sub.yaml
   - 4.devspaces-sub.yaml
+  - 5.web-terminal.yaml
   

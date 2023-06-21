@@ -10,4 +10,6 @@ resources:
   - 4.devspaces-cluster.yaml
   - 5.openshift-logging.yaml
   - 6.cluster-monitoring.yaml
+  - 7.guide-setup-job.yaml
+  - 8.web-terminal.yaml
   
