@@ -57,6 +57,12 @@ rules:
   - '*'
   verbs:
   - '*'
+- apiGroups:
+  - operator.tekton.dev
+  resources:
+  - '*'
+  verbs:
+  - '*'
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -166,6 +172,18 @@ spec:
         - |-
           echo "------------------------------"
           echo " Setting Up Guide Resources"
+
+          TEKTON_CONFIG_READY=$(oc get tektonconfig config -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}')
+          if [ "${TEKTON_CONFIG_READY}" == "True" ]; then
+              echo "TektonConfig is ready, let's proceed"
+              oc get tektonpipeline,tektontrigger,tektonaddon,pac
+              echo "Sleeping one minute"
+              sleep 60
+          else
+              echo "TektonConfig is not ready"
+              sleep ${SLEEP_TIME}
+              exit -1
+          fi
 
           oc new-project ${PROJECT_NAME_INFRA}
 
