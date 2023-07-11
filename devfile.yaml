@@ -40,8 +40,9 @@ components:
           value: 'http://plugin-registry.openshift-operators.svc:8080/v3'
         - name: OPENVSX_REGISTRY_URL
           value: 'https://open-vsx.org'
-      image: 'registry.redhat.io/devspaces/udi-rhel8@sha256:99ff1b5c541855e4cf368816c4bcdcdc86d32304023f72c4443213a4032ef05b'
+      # image: 'registry.redhat.io/devspaces/udi-rhel8@sha256:99ff1b5c541855e4cf368816c4bcdcdc86d32304023f72c4443213a4032ef05b'
       # image: 'registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8'
+      image: quay.io/atarazana/street-java-udi-rhel8:1.0.3
       memoryLimit: 4G
       mountSources: true
       sourceMapping: /projects
