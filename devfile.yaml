@@ -44,7 +44,8 @@ components:
       # image: 'registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8'
       # image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7
       # image: registry.redhat.io/jboss-eap-7/eap-74-openjdk8-openshift-rhel8:7.4.11
-      image: quay.io/atarazana/street-java-udi-rhel8:1.0.3
+      # image: quay.io/atarazana/street-java-udi-rhel8:1.0.3
+      image: quay.io/atarazana/kitchensink-udi:1.0.0
       memoryLimit: 4G
       mountSources: true
       sourceMapping: /projects
