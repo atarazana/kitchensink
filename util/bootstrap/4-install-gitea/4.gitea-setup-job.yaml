@@ -201,7 +201,7 @@ spec:
                 "service": "git",
                 "wiki": false
               }'
-            
+
             BASE_DIR=/tmp/user${i}
             mkdir ${BASE_DIR} && cd ${BASE_DIR}
 
@@ -214,10 +214,10 @@ spec:
             git -C ${BASE_DIR}/kitchensink-conf config --local user.name "user${i}"
 
             yq e -i '.projects[0].git.remotes.origin = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink/devfile.yaml
-            yq e -i '.spec.source.git.uri = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink-conf"' ${BASE_DIR}/kitchensink-conf/basic/base/kitchensink-bc.yaml
+            yq e -i '.spec.source.git.uri = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/basic/base/kitchensink-bc.yaml
             yq e -i '.namespace = "kustomize-dev-user'${i}'"' ${BASE_DIR}/kitchensink-conf/kustomize/dev/kustomization.yml
             yq e -i '.namespace = "kustomize-test-user'${i}'"' ${BASE_DIR}/kitchensink-conf/kustomize/test/kustomization.yml
-            yq e -i '.spec.source.git.uri = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink-conf"' ${BASE_DIR}/kitchensink-conf/advanced/helm_base/templates/kitchensink-bc.yaml
+            yq e -i '.spec.source.git.uri = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/helm_base/templates/kitchensink-bc.yaml
 
             yq e -i '.namespace = "helm-kustomize-dev-user'${i}'"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
             yq e -i '.images[0].name = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user${i}/kitchensink:latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml

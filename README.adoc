@@ -1,8 +1,6 @@
-= Kitchensink Script
-:author: John Doe
-
+= Kitchensink JBoss Cowboys Demo Script
+ 
 toc::[]
-
 
 This is demo script of:
 
@@ -87,7 +85,9 @@ Grant access to the organization where you have forked this repo... if you have.
 
 Now open a terminal and start the proper lab.
 
-== Deploy Kitchensink on JBOSS EAP 7.2 manually using S2I
+== Stage 1: Deploy Kitchensink on JBOSS EAP 7.2 manually using S2I
+
+> At this stage you will deploy the application using S2I manually.
 
 Now, run this command in *T2*:
 
@@ -147,7 +147,7 @@ Open the web console and log in with the non-admin user and open the topology vi
 open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/s2i-${DEV_USERNAME}?view=graph
 ----
 
-Let's see why S2I is so cool.
+*Let's see why S2I is so cool.*
 
 Let's see the build log first!
 
@@ -165,7 +165,37 @@ INFO Processing ImageSource from /tmp/src/extensions
 >>>>>>> Running install.sh <<<<<<
 ----
 
+Now have a look to the POD log with this command:
+
+[source,sh,attributes]
+----
+oc logs dc/kitchensink -n s2i-${DEV_USERNAME} | grep -B5 -A10  "Executing postconfigure.sh"
+----
+
+Or here:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/k8s/ns/s2i-${DEV_USERNAME}/deploymentconfigs/kitchensink
+----
+
+Open `extensions/postconfigure.sh` and `extensions/setup.cli`
+
 === Hot redeploying on OpenShift
+
+Show that it's possible to replace the application on the running container. 
+
+Make a change in file `src/main/webapp/index.xhtml`, like the following:
+
+[source,html,attributes]
+----
+<div>
+    <p>You have successfully deployed the JBoss Application in OpenShift 4.12</p> <1>
+</div>
+----
+<1> Here the change is *4.12*
+
+Explain the following command and run it:
 
 [source,sh,attributes]
 ----
@@ -180,10 +210,287 @@ oc cp ./target/ROOT.war ${POD_NAME}:/deployments/ROOT.war
 sleep 5
 ----
 
+Test the application again and 
+
 [source,sh,attributes]
 ----
 open https://kitchensink-s2i-${DEV_USERNAME}.apps.${CLUSTER_DOMAIN}/
 ----
 
-== Deploy Kitchensink on JBOSS EAP 7.2 with ArgoCD
+== Stage 2: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD from plain descriptors
 
+> At this stage *Argo CD* will *deploy* the application *automatically* using an *Application object* which will obtain *plain descriptors* at `kitchensink-conf/basic/base`.
+
+The first one from a folder containing some descriptors that we have obtained from the JBoss EAP 7.2 template.
+
+Now, you have to run the next command that created the ApplicationSet object.
+
+[source,sh,attributes]
+----
+cat <<EOF | oc apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kitchensink-basic-app-${DEV_USERNAME}
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    kitchensink-root-app: 'true'
+    username: ${DEV_USERNAME}
+spec:
+  destination:
+    name: in-cluster 
+    namespace: argo-${DEV_USERNAME} 
+  ignoreDifferences: 
+    - group: apps.openshift.io
+      jqPathExpressions:
+        - '.spec.template.spec.containers[].image'
+      kind: DeploymentConfig
+  project: default
+  source: 
+    path: basic/base
+    repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
+    targetRevision: main
+  syncPolicy:
+    automated:
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+EOF
+----
+
+Open the next link to see the the application deployed using Argo CD:
+
+[source,sh,attributes]
+----
+open ${ARGO_SERVER}/applications?search=basic-app
+----
+
+Next link takes you to the topology view of project argo-${DEV_USERNAME}:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/argo-${DEV_USERNAME}?view=graph
+----
+
+Show that, again, S2I takes care of building the image so that you don't have to care about it.
+
+== Stage 3: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD from plain descriptors but two namespaces
+
+> At this stage *Argo CD* will *deploy* the application *automatically* using an *ApplicationSet object* which will obtain *plain descriptors* at `kitchensink-conf/basic/base` and deploy in two namespaces at the same time.
+
+[source,sh,attributes]
+----
+cat <<EOF | oc apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kitchensink-basic-${DEV_USERNAME}
+  namespace: openshift-gitops
+  labels:
+    argocd-root-app: "true"
+    username: ${DEV_USERNAME}
+spec:
+  generators: 
+  - list:
+      elements:
+      - env: appset-a-${DEV_USERNAME}
+        desc: "ApplicationSet A"
+      - env: appset-b-${DEV_USERNAME}
+        desc: "ApplicationSet B"
+  template:
+    metadata:
+      name: kitchensink-basic-app-{{ env }}
+      namespace: openshift-gitops
+      labels:
+        kitchensink-root-app: "true"
+        username: ${DEV_USERNAME}
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    spec:
+      destination:
+        namespace: '{{ env }}'
+        name: in-cluster
+      ignoreDifferences:
+      - group: apps.openshift.io
+        kind: DeploymentConfig
+        jqPathExpressions:
+          - .spec.template.spec.containers[].image
+      project: default
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      source:
+        path: basic/base
+        repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
+        targetRevision: main
+EOF
+----
+
+Open the next link to see the the application deployed using Argo CD:
+
+[source,sh,attributes]
+----
+open ${ARGO_SERVER}/applications?search=basic-app-appset
+----
+
+Next links takes you to the topology view of project *appset-a-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/appset-a-${DEV_USERNAME}?view=graph
+----
+
+And *appset-b-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/appset-b-${DEV_USERNAME}?view=graph
+----
+
+This stage is just to show that you could deploy plain descriptors from different folders in different namespaces.
+
+== Stage 4: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using kustomize to deploy in two overlays
+
+> At this stage *Argo CD* will *deploy* the application *automatically* using an *ApplicationSet object* which will use *kustomize* to obtain *descriptors* from `kitchensink-conf/kustomize/{{ env }}` where `env` is *dev* and *test* to deploy in two namespaces at the same time.
+
+[source,sh,attributes]
+----
+cat <<EOF | oc apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kitchensink-kustomize-${DEV_USERNAME}
+  namespace: openshift-gitops
+  labels:
+    argocd-root-app: "true"
+    username: ${DEV_USERNAME}
+spec:
+  generators:
+  - list:
+      elements:
+      - env: dev
+        ns: kustomize-dev-${DEV_USERNAME}
+        desc: "Kustomize Dev"
+      - env: test
+        ns: kustomize-test-${DEV_USERNAME}
+        desc: "Kustomize Test"
+  template:
+    metadata:
+      name: kitchensink-kustomize-app-{{ env }}-${DEV_USERNAME}
+      namespace: openshift-gitops
+      labels:
+        kitchensink-root-app: "true"
+        username: ${DEV_USERNAME}
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    spec:
+      destination:
+        namespace: '{{ ns }}'
+        name: in-cluster
+      ignoreDifferences:
+      - group: apps.openshift.io
+        kind: DeploymentConfig
+        jqPathExpressions:
+          - .spec.template.spec.containers[].image
+      project: default
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      source:
+        path: kustomize/{{ env }}
+        repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
+        targetRevision: main
+EOF
+----
+
+Open the next link to see the the application deployed using Argo CD:
+
+[source,sh,attributes]
+----
+open ${ARGO_SERVER}/applications?search=kustomize
+----
+
+Next links takes you to the topology view of project *kustomize-dev-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/kustomize-dev-${DEV_USERNAME}?view=graph
+----
+
+And *kustomize-test-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/kustomize-test-${DEV_USERNAME}?view=graph
+----
+
+This stage shows that you could deploy descriptors from different kustomize overlays in different namespaces using an ApplicationSet and the kustomize plugin.
+
+== Stage 4: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using kustomize to deploy in two overlays
+
+> At this stage *Argo CD* will *deploy* the application *automatically* using an *Application object* which will use *helm* to obtain *descriptors* from `kitchensink-conf/advanced/helm_base` to deploy in namespace `helm-${DEV_USERNAME}`.
+
+> This time the descriptor to deploy our application is a Deployment object instead of a DeploymentConfig
+
+[source,sh,attributes]
+----
+cat <<EOF | oc apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kitchensink-helm-app-${DEV_USERNAME}
+  namespace: openshift-gitops
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  labels:
+    kitchensink-root-app: 'true'
+    username: ${DEV_USERNAME}
+spec:
+  destination:
+    name: in-cluster
+    namespace: helm-${DEV_USERNAME}
+  ignoreDifferences:
+    - group: apps
+      jqPathExpressions:
+        - '.spec.template.spec.containers[].image'
+      kind: Deployment
+  project: default
+  source:
+    helm:
+      parameters:
+        - name: debug
+          value: 'true'
+        - name: baseNamespace
+          value: 'helm-${DEV_USERNAME}'
+    path: advanced/helm_base
+    repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
+    targetRevision: main
+  syncPolicy:
+    automated:
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+EOF
+----
+
+Open the next link to see the the application deployed using Argo CD:
+
+[source,sh,attributes]
+----
+open ${ARGO_SERVER}/applications?search=helm
+----
+
+Next links takes you to the topology view of project *helm-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-${DEV_USERNAME}?view=graph
+----
+
+This stage shows that you could deploy descriptors using the helm plugin using an Application object.
