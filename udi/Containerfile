@@ -9,8 +9,6 @@ ENV OC_VERSION=4.12.25
 
 USER root
 
-ADD entrypoint.sh /entrypoint.sh
-
 RUN \
     dnf -y -q install --setopt=tsflags=nodocs \
         nodejs npm nodejs-nodemon nss_wrapper \
@@ -42,6 +40,8 @@ RUN curl -o /tmp/argocd -L https://github.com/argoproj/argo-cd/releases/download
 RUN curl -o /tmp/oc.tar.gz -L https://mirror.openshift.com/pub/openshift-v4/x86_64/clients/ocp/${OC_VERSION}/openshift-client-linux-${OC_VERSION}.tar.gz && cd /usr/bin && tar -xvzf /tmp/oc.tar.gz && chmod a+x /usr/bin/oc && chmod a+x /usr/bin/kubectl && rm -f /tmp/oc.tar.gz
 
 RUN chgrp -R 0 /var/lib/alternatives && chmod -R g+rwX /var/lib/alternatives
+
+ADD entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
