@@ -1,47 +1,47 @@
 
-[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://devspaces.apps.cluster-bzcxc.bzcxc.sandbox722.opentlc.com/#https://github.com/atarazana/kitchensink.git)
+
+# Preparing the demo
+
+As cluster-admin run this command to install all the operators, service accounts, etc.
 
 ```sh
 until oc apply -k util/bootstrap/; do sleep 2; done
 ```
 
+Then go here https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che and follow instructions to create a GH App.
+
+Prepare .env file
+
 ```sh
+cat <EOF > .env
+GH_OAUTH_CLIENT_ID=23...
+GH_OAUTH_CLIENT_SECRET=70...
+EOF
+```
+
+And run this command to create a secret for DevSpaces to be able to create credentials for github repositories automatically.
+
+```sh
+. .env
 ./util/create-checluster-github-service.sh ${GH_OAUTH_CLIENT_ID} ${GH_OAUTH_CLIENT_SECRET}
 ```
 
-# EAP Kitchen sink application using external MySQL database.
+Open DevSpaces with this link. Update to another org if you fork this repo.
 
-To run, first start a mysql database using docker-compose
+[![Contribute](https://www.eclipse.org/che/contribute.svg)](https://devspaces.apps.cluster-7mggs.7mggs.sandbox952.opentlc.com/#https://github.com/atarazana/kitchensink.git)
 
-`docker-compose up`
+Grant access to the organization where you have forked this repo... if you have.
 
-Run wildfly, from the EAP_HOME folder, run:
+Now open a terminal and start the proper lab.
 
-`./bin/standalone.sh`
+# Deploying a JBOSS EAP 7.2 application manually using S2I
 
-Copy the contents of the modules folder to the EAP_HOME/modules folder.
-
-deploy the Kitchen sink application, from the repo location run:
-
-
-`mvn clean install wildfly:deploy`
-
-Add the driver and datasource, from the EAP_HOME folder, run:
-
-
+```sh
+oc new-project s2i-${DEV_USERNAME}
 ```
 
-jboss-cli.sh
-
-/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql)
-
-data-source add --name=mysql --jndi-name=java:/jdbc/mysql --driver-name=mysql --connection-url=jdbc:mysql://127.0.0.1:3306/books --user-name=root --password=root
-```
-
-Test the kitchen sink app at url:  http://127.0.0.1:8080/kitchensink/index.jsf
-
-SECRET!
 
 
 
-./util/create-registry-secret.sh demo-6 myregistry-quay-app.quay-system demos demos+cicd 9QS9LSMK1DR15I9TJVAZ5LOXB6XRK991D9MN1ZQU4ASB13CXB13Z6ABKYV7B8TT0 quay-creds
+
+

@@ -1,34 +1,73 @@
 = Kitchensink Script
-// include::_attributes.adoc[]
-:username: user1
+:author: John Doe
+
+toc::[]
+
 
 This is demo script of:
 
 image::kitchensink-logo.svg[Kitchen Sink Logo,400]
 
-:toc:
-
-
 == Preparing the demo
 
-As cluster-admin run this command to install all the operators, service accounts, etc.
+Create a `.env` in the folder where you have cloned this repository copy the next set of variables and fill the empty ones.
+
+[source,sh,attributes]
+----
+DEV_USERNAME=user1
+DEV_PASSWORD=gpGJXQmrpxkfdzT8
+
+PROJECT_NAME=kitchensink-${DEV_USERNAME}
+
+ADMIN_USER=<FILL_ME/>
+ADMIN_PASSWORD=<FILL_ME/>
+
+CLUSTER_DOMAIN=<FILL_ME/>
+SERVER=https://api.${CLUSTER_DOMAIN}:644
+
+GH_OAUTH_CLIENT_ID=23...
+GH_OAUTH_CLIENT_SECRET=70f...
+----
+
+Open three terminal windows, referred to as *T1*, *T2* and *T3* and change to the folder where this repository has been cloned.
+
+Run this command in *T1*:
+
+[.console-input]
+[source,bash, subs="+attributes"]
+----
+. .env
+
+export KUBECONFIG=~/.kube/config-kitchensink-admin
+
+oc login -u ${ADMIN_USER} -p ${ADMIN_PASSWORD} --insecure-skip-tls-verify=true --server=${SERVER}
+----
+
+[#installation]
+== Install ArgoCD, Pipelines and Quay using the operators
+
+Install ArgoCD Operator, Openshift Pipelines and Quay (simplified non-supported configuration). Log in as cluster-admin and run this command from *T1*:
 
 [source,sh,attributes]
 ----
 until oc apply -k util/bootstrap/; do sleep 2; done
 ----
 
+Now, run this command in *T2* and *T3* before running the demo:
+
+[.console-input]
+[source,bash, subs="+attributes"]
+----
+. .env
+
+export KUBECONFIG=~/.kube/config-kitchensink-user
+
+oc login -u ${DEV_USERNAME} -p ${DEV_PASSWORD} --server=${SERVER} --insecure-skip-tls-verify=true
+----
+
+== DevSpaces
+
 Then go here https://www.eclipse.org/che/docs/stable/administration-guide/configuring-oauth-2-for-github/#setting-up-the-github-oauth-app_che and follow instructions to create a GH App.
-
-Prepare .env file
-
-[source,sh,attributes]
-----
-cat <EOF > .env
-GH_OAUTH_CLIENT_ID=23...
-GH_OAUTH_CLIENT_SECRET=70...
-EOF
-----
 
 And run this command to create a secret for DevSpaces to be able to create credentials for github repositories automatically.
 
@@ -48,16 +87,103 @@ Grant access to the organization where you have forked this repo... if you have.
 
 Now open a terminal and start the proper lab.
 
-== Deploying a JBOSS EAP 7.2 application manually using S2I
+== Deploy Kitchensink on JBOSS EAP 7.2 manually using S2I
+
+Now, run this command in *T2*:
+
+First of all, create the project that will host the application:
 
 [source,sh,attributes]
 ----
-oc new-project s2i-{username}
+oc new-project s2i-${DEV_USERNAME}
 ----
 
+Deploy the PostgreSQL database for the kitchensink app:
 
+[source,sh,attributes]
+----
+oc new-app --name=kitchensink-db \
+ -e POSTGRESQL_USER=luke \
+ -e POSTGRESQL_PASSWORD=secret \
+ -e POSTGRESQL_DATABASE=kitchensink centos/postgresql-10-centos7 \
+ --as-deployment-config=false
 
+oc label deployment/kitchensink-db app.kubernetes.io/part-of=kitchensink-app --overwrite=true && \
+oc label deployment/kitchensink-db app.openshift.io/runtime=postgresql --overwrite=true
+----
 
+Deploy the kitchensink app:
 
+[source,sh,attributes]
+----
+oc new-app --template=eap72-basic-s2i \
+-p APPLICATION_NAME=kitchensink \
+-p MAVEN_ARGS_APPEND="-Dcom.redhat.xpaas.repo.jbossorg" \
+-p SOURCE_REPOSITORY_URL="${GIT_SERVER}/${DEV_USERNAME}/kitchensink" \
+-p SOURCE_REPOSITORY_REF=main \
+-p CONTEXT_DIR=.
+----
 
+Adjust the context of the application and add decoration (labels and annotation):
+
+[source,sh,attributes]
+----
+oc set env dc/kitchensink DB_HOST=kitchensink-db DB_PORT=5432 DB_NAME=kitchensink DB_USERNAME=luke DB_PASSWORD=secret && \
+oc set probe dc/kitchensink --readiness --initial-delay-seconds=90 --failure-threshold=5 && \
+oc set probe dc/kitchensink --liveness --initial-delay-seconds=90 --failure-threshold=5
+
+oc label dc/kitchensink app.kubernetes.io/part-of=kitchensink-app --overwrite=true && \
+oc label dc/kitchensink app.openshift.io/runtime=jboss --overwrite=true
+
+oc annotate dc/kitchensink \
+ app.openshift.io/connects-to='[{"apiVersion":"apps/v1","kind":"Deployment","name":"kitchensink-db"}]' \
+ --overwrite=true
+----
+
+Open the web console and log in with the non-admin user and open the topology view.
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/s2i-${DEV_USERNAME}?view=graph
+----
+
+Let's see why S2I is so cool.
+
+Let's see the build log first!
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/k8s/ns/s2i-${DEV_USERNAME}/builds/kitchensink-1/logs
+----
+
+This is the key:
+
+[source,sh,attributes]
+----
+INFO Processing ImageSource mounts: extensions
+INFO Processing ImageSource from /tmp/src/extensions
+>>>>>>> Running install.sh <<<<<<
+----
+
+=== Hot redeploying on OpenShift
+
+[source,sh,attributes]
+----
+oc project s2i-${DEV_USERNAME}
+
+POD_NAME=$(oc get pod -l application=kitchensink -o json | jq -r .items[0].metadata.name)
+echo "POD_NAME=${POD_NAME}"
+
+mvn package -Popenshift
+
+oc cp ./target/ROOT.war ${POD_NAME}:/deployments/ROOT.war
+sleep 5
+----
+
+[source,sh,attributes]
+----
+open https://kitchensink-s2i-${DEV_USERNAME}.apps.${CLUSTER_DOMAIN}/
+----
+
+== Deploy Kitchensink on JBOSS EAP 7.2 with ArgoCD
 
