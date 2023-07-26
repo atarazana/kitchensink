@@ -494,3 +494,197 @@ open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-$
 ----
 
 This stage shows that you could deploy descriptors using the helm plugin using an Application object.
+
+== Stage 5: Preparing CICD Infrastructure for Kitchensink using ArgoCD
+
+> At this stage *Argo CD* will *deploy* the CICD pipelines *automatically* using an *ApplicationSet object* which will use *helm* to obtain *descriptors* from `kitchensink-conf/cicd` to deploy in namespace `cicd-tekton-${DEV_USERNAME}`.
+
+[source,sh,attributes]
+----
+cat <<EOF | oc apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kitchensink-cicd-${DEV_USERNAME}
+  namespace: openshift-gitops
+  labels:
+    kitchensink-cicd-appset: "true"
+spec:
+  generators:
+  - list:
+      elements:
+      - cluster: in-cluster
+        ns: "cicd-tekton-${DEV_USERNAME}"
+  template:
+    metadata:
+      name: kitchensink-cicd-${DEV_USERNAME}
+      namespace: openshift-gitops
+      labels:
+        kitchensink-cicd-app: "true"
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    spec:
+      destination:
+        namespace: '{{ ns }}'
+        name: '{{ cluster }}'
+      project: default
+      syncPolicy:
+        automated:
+          selfHeal: true
+      source:
+        helm:
+          parameters:
+            - name: kitchensinkRepoUrl
+              value: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink"
+            - name: kitchensinkRevision
+              value: "main"
+            - name: kitchensinkConfRepoUrl
+              value: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
+            - name: kitchensinkConfRevision
+              value: "main"
+            - name: username
+              value: "${DEV_USERNAME}"
+            - name: gitSslVerify
+              value: "true"
+            - name: cicdNamespace
+              value: "cicd-tekton-${DEV_USERNAME}"
+            - name: overlayDevNamespace
+              value: "helm-kustomize-dev-${DEV_USERNAME}"
+            - name: overlayTestNamespace
+              value: "helm-kustomize-test-${DEV_USERNAME}"
+            # - name: containerRegistryServer
+            #   value: myregistry-quay-quay-system.apps.cluster-7mggs.7mggs.sandbox952.opentlc.com
+            # - name: containerRegistryOrg
+            #   value: ${DEV_USERNAME}
+        path: cicd
+        repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
+        targetRevision: main
+EOF
+----
+
+Open the next link to see the the application deployed using Argo CD:
+
+[source,sh,attributes]
+----
+open ${ARGO_SERVER}/applications?search=cicd
+----
+
+Next links takes you to the pipelines view of project *cicd-tekton-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/dev-pipelines/ns/cicd-tekton-${DEV_USERNAME}
+----
+
+=== Create Git Secret
+
+[source,sh,attributes]
+----
+GIT_PAT=$(curl -k -s -XPOST -H "Content-Type: application/json" \
+  -d '{"name":"cicd'"${RANDOM}"'","scopes": ["repo"]}' \
+  -u ${DEV_USERNAME}:openshift \
+  ${GIT_SERVER}/api/v1/users/${DEV_USERNAME}/tokens | jq -r .sha1)
+echo "GIT_PAT=${GIT_PAT}"
+----
+
+[source,sh,attributes]
+----
+cat <<EOF | oc apply -n cicd-tekton-${DEV_USERNAME} -f -
+apiVersion: v1
+kind: Secret
+metadata:
+  name: git-pat-secret
+  namespace: cicd-tekton-${DEV_USERNAME}
+type: kubernetes.io/basic-auth
+stringData:
+  user.name: ${DEV_USERNAME}
+  user.email: "${DEV_USERNAME}@example.com"
+  username: ${DEV_USERNAME}
+  password: ${GIT_PAT}
+EOF
+----
+
+[source,sh,attributes]
+----
+oc annotate -n cicd-tekton-${DEV_USERNAME} secret git-pat-secret \
+  "tekton.dev/git-0=${GIT_SERVER}"
+----
+
+== Stage 6: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using helm + kustomize to deploy in two overlays
+
+> At this stage *Argo CD* will *deploy* the application *automatically* using an *ApplicationSet object* which will use *a custom plugin* *helm-kustomized* to obtain *descriptors* from `kitchensink-conf/kustomize/{{ env }}` where `env` is *dev* and *test* to deploy in two namespaces at the same time.
+
+[source,sh,attributes]
+----
+cat <<EOF | oc apply -n openshift-gitops -f -
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: kitchensink-kustomized-helm-${DEV_USERNAME}
+  namespace: openshift-gitops
+  labels:
+    argocd-root-app: "true"
+    username: ${DEV_USERNAME}
+spec:
+  generators:
+  - list:
+      elements:
+      - env: dev
+        ns: helm-kustomize-dev-${DEV_USERNAME}
+        desc: "Helm + Kustomize (Dev)"
+      - env: test
+        ns: helm-kustomize-test-${DEV_USERNAME}
+        desc: "Helm + Kustomize (Test)"
+  template:
+    metadata:
+      name: kitchensink-kustomized-helm-app-{{ env }}-${DEV_USERNAME}
+      namespace: openshift-gitops
+      labels:
+        kitchensink-root-app: "true"
+        username: ${DEV_USERNAME}
+      finalizers:
+      - resources-finalizer.argocd.argoproj.io
+    spec:
+      destination:
+        namespace: '{{ ns }}'
+        name: in-cluster
+      project: default
+      syncPolicy:
+        automated:
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true
+      source:
+        path: advanced/overlays/{{ env }}
+        repoURL: "${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf"
+        targetRevision: main
+        plugin:
+          env:
+            - name: DEBUG
+              value: 'false'
+            - name: BASE_NAMESPACE
+              value: 'cicd-tekton-${DEV_USERNAME}'
+          name: kustomized-helm
+EOF
+----
+
+Open the next link to see the the application deployed using Argo CD:
+
+[source,sh,attributes]
+----
+open ${ARGO_SERVER}/applications?search=kustomized-helm
+----
+
+Next links takes you to the pipelines view of project *elm-kustomize-dev-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-kustomize-dev-${DEV_USERNAME}?view=graph
+----
+
+Next links takes you to the pipelines view of project *elm-kustomize-test-${DEV_USERNAME}*:
+
+[source,sh,attributes]
+----
+open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-kustomize-test-${DEV_USERNAME}?view=graph
+----
