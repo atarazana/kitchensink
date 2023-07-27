@@ -459,7 +459,7 @@ open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/kustom
 
 This stage shows that you could deploy descriptors from different kustomize overlays in different namespaces using an ApplicationSet and the kustomize plugin.
 
-== Stage 4: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using kustomize to deploy in two overlays
+== Stage 5: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using helm
 
 > At this stage *Argo CD* will *deploy* the application *automatically* using an *Application object* which will use *helm* to obtain *descriptors* from `kitchensink-conf/advanced/helm_base` to deploy in namespace `helm-${DEV_USERNAME}`.
 
@@ -522,7 +522,7 @@ open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-$
 
 This stage shows that you could deploy descriptors using the helm plugin using an Application object.
 
-== Stage 5: Preparing CICD Infrastructure for Kitchensink using ArgoCD
+== Stage 6: Preparing CICD Infrastructure for Kitchensink using ArgoCD
 
 > At this stage *Argo CD* will *deploy* the CICD pipelines *automatically* using an *ApplicationSet object* which will use *helm* to obtain *descriptors* from `kitchensink-conf/cicd` to deploy in namespace `cicd-tekton-${DEV_USERNAME}`.
 
@@ -691,7 +691,7 @@ Expect outputs like this:
 {"id":2,"type":"gitea","config":{"content_type":"json","url":"http://el-kitchensink-cd-pl-pr-gitea-listener-cicd-tekton-user1.apps.example.com"},"events":["pull_request","pull_request_assign","pull_request_label","pull_request_milestone","pull_request_comment","pull_request_review_approved","pull_request_review_rejected","pull_request_review_comment","pull_request_sync"],"authorization_header":"","active":true,"updated_at":"2023-07-27T07:18:06Z","created_at":"2023-07-27T07:18:06Z"}
 ----
 
-== Stage 6: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using helm + kustomize to deploy in two overlays
+== Stage 7: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using helm + kustomize to deploy in two overlays
 
 > At this stage *Argo CD* will *deploy* the application *automatically* using an *ApplicationSet object* which will use *a custom plugin* *helm-kustomized* to obtain *descriptors* from `kitchensink-conf/kustomize/{{ env }}` where `env` is *dev* and *test* to deploy in two namespaces at the same time.
 
@@ -770,7 +770,7 @@ Next links takes you to the pipelines view of project *elm-kustomize-test-${DEV_
 open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-kustomize-test-${DEV_USERNAME}?view=graph
 ----
 
-== Stage 7: End to End Tests
+== Stage 8: End to End Tests
 
 Make a change to `src/main/webapp/index.xhtml`, for instance:
 
@@ -799,7 +799,7 @@ Then go to the configuration repository `kitchensink-conf` and look for `Pull Re
 
 Finally do the same to deploy on `test`.
 
-== Stage 8: Upgrade 7.2 to 7.4
+== Stage 9: Upgrade 7.2 to 7.4
 
 Since you started this guide you've been deploying Kitchensink on JBoss EAP 7.2, in different ways and namespaces, always using S2I to build the image starting from the source code of the Jakarta EE application.
 

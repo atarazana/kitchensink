@@ -134,7 +134,8 @@ spec:
           fi
 
           GITEA_HOST_ROUTE=$(oc get route/repository -n gitea-system -o jsonpath='{.spec.host}')
-
+          echo "GITEA_HOST_ROUTE=${GITEA_HOST_ROUTE}"
+          
           for i in $(seq 1 $COUNT); 
           do
             echo "Creating user${i}"
