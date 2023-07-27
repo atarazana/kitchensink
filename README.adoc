@@ -4,7 +4,13 @@ toc::[]
 
 You've reached the *JBoss Cowboys* demo repository, this demo and also the accompanying workshop are based on link:https://developers.redhat.com/quickstarts/eap/kitchensink[kitchensink] quick start.
 
-Why *JBoss Cowboys*, well, because of the Space Cowboys movie no less! Here you have the patch for this mission!
+Why *JBoss Cowboys*, well, because of the Space Cowboys movie no less! In that movie some veteran pilots need to help younger ones with a problem with a cold war era satellite. They prove to be in _good_ shape and very committed in the end the solve the problem.
+
+So here you are, about to embark on a mission where you will deploy a JBoss EAP well known application 'kitchensink' on OpenShift (hence using containers) and you're going to do it using different approaches, but all of them relying ultimately on Red Hat OpenShift S2I to build the container image.
+
+You will start using S2I manually, then you will do automatically sing GitOps (Argo CD) starting using plain descriptors, kustomize, helm and finally helm + kustomize.
+
+There's no space mission without a patch, here you have the one for this mission!
 
 image::kitchensink-patch.svg[Kitchen Sink Logo,400]
 
