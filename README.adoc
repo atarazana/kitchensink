@@ -51,7 +51,7 @@ Install ArgoCD Operator, Openshift Pipelines and Quay (simplified non-supported 
 until oc apply -k util/bootstrap/; do sleep 2; done
 ----
 
-Now, run this command in *T2* and *T3* before running the demo:
+Now, run this command in *T2* before running the demo:
 
 [.console-input]
 [source,bash, subs="+attributes"]
@@ -110,6 +110,33 @@ oc new-app --name=kitchensink-db \
 
 oc label deployment/kitchensink-db app.kubernetes.io/part-of=kitchensink-app --overwrite=true && \
 oc label deployment/kitchensink-db app.openshift.io/runtime=postgresql --overwrite=true
+----
+
+To fix the SCC issues... optional for now.
+
+[source,sh,attributes]
+----
+oc patch deployment kitchensink-db --type json -p '
+[{
+  "op": "add",
+  "path": "/spec/template/spec/securityContext",
+  "value": {
+    "runAsNonRoot": true,
+    "seccompProfile": {
+      "type": "RuntimeDefault"
+    }
+  }
+},
+{
+  "op": "add",
+  "path": "/spec/template/spec/containers/0/securityContext",
+  "value": {
+    "allowPrivilegeEscalation": false,
+    "capabilities": {
+      "drop": ["ALL"]
+    }
+  }
+}]'
 ----
 
 Deploy the kitchensink app:
@@ -185,7 +212,7 @@ Open `extensions/postconfigure.sh` and `extensions/setup.cli`
 
 Show that it's possible to replace the application on the running container. 
 
-Make a change in file `src/main/webapp/index.xhtml`, like the following:
+Make a change in *local* file `src/main/webapp/index.xhtml`, like the following:
 
 [source,html,attributes]
 ----
