@@ -14,6 +14,8 @@ There's no space mission without a patch, here you have the one for this mission
 
 image::kitchensink-patch.svg[Kitchen Sink Logo,400]
 
+Good luck.
+
 == Preparing the demo
 
 Create a `.env` in the folder where you have cloned this repository copy the next set of variables and fill the empty ones.
