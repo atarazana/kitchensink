@@ -851,7 +851,7 @@ Next link will take you to file `kitchensink-conf/advanced/helm_base/values.yaml
 [.console-input]
 [source,bash, subs="+attributes"]
 ----
-https://${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/advanced/helm_base/values.yaml#L6
+open ${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/advanced/helm_base/values.yaml#L6
 ----
 
 Once there, you have to change this:
@@ -878,7 +878,7 @@ Finally, the following link will take you to file `kitchensink-conf/cicd/values.
 [.console-input]
 [source,bash, subs="+attributes"]
 ----
-https://${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/cicd/values.yaml#L21
+open ${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/cicd/values.yaml#L21
 ----
 
 Once there, you have to change this:
@@ -906,7 +906,7 @@ Please copy and paste the following link and open it in a browser. It will take 
 [.console-input]
 [source,bash, subs="+attributes"]
 ----
-https://${GIT_SERVER}/${DEV_USERNAME}/kitchensink/_edit/main/extensions/install.sh#L12
+open ${GIT_SERVER}/${DEV_USERNAME}/kitchensink/_edit/main/extensions/install.sh#L12
 ----
 
 Once there, you have to change this:
