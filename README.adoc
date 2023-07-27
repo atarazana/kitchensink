@@ -4,7 +4,7 @@ toc::[]
 
 This is demo script of:
 
-image::kitchensink-logo.svg[Kitchen Sink Logo,400]
+image::kitchensink-patch.svg[Kitchen Sink Logo,400]
 
 == Preparing the demo
 
@@ -824,7 +824,7 @@ Please copy and paste the following link and open it in a browser. It will take 
 [.console-input]
 [source,bash, subs="+attributes"]
 ----
-https://${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/basic/base/kitchensink-bc.yaml#L27
+open ${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/basic/base/kitchensink-bc.yaml#L27
 ----
 
 Once there, you have to change this:
@@ -899,7 +899,7 @@ kitchensinkBuilderImage: jboss-eap74-openjdk8-openshift:7.4.0
 Once you have made the changes scroll down and click on `Commit Changes`.
 
 [#update-install-script]
-== Update `install.sh`
+=== Update `install.sh`
 
 Please copy and paste the following link and open it in a browser. It will take you to file `kitchensink/extensions/install.sh` where you have to uncomment the line where the script configures the PostgreSQL driver.
 
@@ -926,7 +926,7 @@ configure_drivers ${injected_dir}/driver-postgresql.env
 
 Once you have made the changes scroll down and click on `Commit Changes`.
 
-== Refresh Applications in ArgoCD
+=== Refresh Applications in ArgoCD
 
 Now let's force the refresh of all our applications at once before we make the last change which will trigger the CI pipeline. To do that you have to go to Argo CD and click on `REFRESH APPS` then click on `ALL` as in the next picture.
 
@@ -939,13 +939,13 @@ TIP: The following link has a query parameter `search` which will show only the 
 [.console-input]
 [source,bash, subs="+attributes"]
 ----
-https://{argocd-server}/applications?search=${DEV_USERNAME}
+open ${ARGO_SERVER}/applications?search=${DEV_USERNAME}
 ----
 
 [#rebuild-images]
 == Rebuild Images
 
-Rebuild all images expect for the ones in projects:
+Rebuild all images except for the ones in projects:
 
 * helm-kustomize-dev-${DEV_USERNAME}
 * helm-kustomize-test-${DEV_USERNAME}.
