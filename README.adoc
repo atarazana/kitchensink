@@ -604,10 +604,64 @@ stringData:
 EOF
 ----
 
+Annotate the git secret so that tekton can use it when cloning or pushing changes.
+
 [source,sh,attributes]
 ----
 oc annotate -n cicd-tekton-${DEV_USERNAME} secret git-pat-secret \
   "tekton.dev/git-0=${GIT_SERVER}"
+----
+
+=== Setting up Git Repos Webhooks
+
+We need a webhook to trigger the CI pipeline when changes are made to the code and another one to trigger the CD pipeline when Pull Requests are merged and closed.
+
+[source,sh,attributes]
+----
+KITCHENSINK_CI_EL_LISTENER_HOST=$(oc get route/el-kitchensink-ci-pl-push-gitea-listener -n cicd-tekton-${DEV_USERNAME} -o jsonpath='{.status.ingress[0].host}')
+
+curl -k -X 'POST' "${GIT_SERVER}/api/v1/repos/${DEV_USERNAME}/kitchensink/hooks" \
+  -H "accept: application/json" \
+  -H "Authorization: token ${GIT_PAT}" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "active": true,
+  "branch_filter": "*",
+  "config": {
+     "content_type": "json",
+     "url": "http://'"${KITCHENSINK_CI_EL_LISTENER_HOST}"'"
+  },
+  "events": [
+    "push" 
+  ],
+  "type": "gitea"
+}'
+
+KITCHENSINK_CD_EL_LISTENER_HOST=$(oc get route/el-kitchensink-cd-pl-pr-gitea-listener -n cicd-tekton-${DEV_USERNAME} -o jsonpath='{.status.ingress[0].host}')
+
+curl -k -X 'POST' "${GIT_SERVER}/api/v1/repos/${DEV_USERNAME}/kitchensink-conf/hooks" \
+  -H "accept: application/json" \
+  -H "Authorization: token ${GIT_PAT}" \
+  -H "Content-Type: application/json" \
+  -d '{
+  "active": true,
+  "branch_filter": "*",
+  "config": {
+     "content_type": "json",
+     "url": "http://'"${KITCHENSINK_CD_EL_LISTENER_HOST}"'"
+  },
+  "events": [
+    "pull_request" 
+  ],
+  "type": "gitea"
+}'
+----
+
+Expect outputs like this:
+
+[source,json,attributes]
+----
+{"id":2,"type":"gitea","config":{"content_type":"json","url":"http://el-kitchensink-cd-pl-pr-gitea-listener-cicd-tekton-user1.apps.example.com"},"events":["pull_request","pull_request_assign","pull_request_label","pull_request_milestone","pull_request_comment","pull_request_review_approved","pull_request_review_rejected","pull_request_review_comment","pull_request_sync"],"authorization_header":"","active":true,"updated_at":"2023-07-27T07:18:06Z","created_at":"2023-07-27T07:18:06Z"}
 ----
 
 == Stage 6: Launch Kitchensink on JBOSS EAP 7.2 with ArgoCD using helm + kustomize to deploy in two overlays
@@ -687,4 +741,22 @@ Next links takes you to the pipelines view of project *elm-kustomize-test-${DEV_
 [source,sh,attributes]
 ----
 open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-kustomize-test-${DEV_USERNAME}?view=graph
+----
+
+== Stage 7: End to End Tests
+
+Make a change to `src/main/webapp/index.xhtml`, for instance:
+
+[source,xml]
+----
+<div>
+    <p>You have successfully deployed the JBoss Application in OpenShift !!!</p>
+</div>
+----
+
+Do it using this link.
+
+[source,sh,attributes]
+----
+open ${GIT_SERVER}/${DEV_USERNAME}/kitchensink/_edit/main/src/main/webapp/index.xhtml
 ----
