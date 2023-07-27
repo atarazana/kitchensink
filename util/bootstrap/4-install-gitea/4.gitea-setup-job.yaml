@@ -90,7 +90,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: quay.io/atarazana/gh:0.0.1
+        image: quay.io/atarazana/util:0.0.1
         env:
         - name: GITEA_HOST
           value: repository:3000
@@ -135,7 +135,7 @@ spec:
 
           GITEA_HOST_ROUTE=$(oc get route/repository -n gitea-system -o jsonpath='{.spec.host}')
           echo "GITEA_HOST_ROUTE=${GITEA_HOST_ROUTE}"
-          
+
           for i in $(seq 1 $COUNT); 
           do
             echo "Creating user${i}"
@@ -224,8 +224,8 @@ spec:
             yq e -i '.spec.source.git.uri = "https://'${GITEA_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/helm_base/templates/kitchensink-bc.yaml
 
             yq e -i '.namespace = "helm-kustomize-dev-user'${i}'"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
-            yq e -i '.images[0].name = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user${i}/kitchensink:latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
-            yq e -i '.images[0].newName = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user${i}/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
+            yq e -i '.images[0].name = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user'${i}'/kitchensink:latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
+            yq e -i '.images[0].newName = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
             yq e -i '.images[0].newTag = "latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
 
             yq e -i '.namespace = "helm-kustomize-test-user'${i}'"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/test/kustomization.yml
