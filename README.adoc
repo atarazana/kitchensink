@@ -2,7 +2,9 @@
  
 toc::[]
 
-This is demo script of:
+You've reached the *JBoss Cowboys* demo repository, this demo and also the accompanying workshop are based on link:https://developers.redhat.com/quickstarts/eap/kitchensink[kitchensink] quick start.
+
+Why *JBoss Cowboys*, well, because of the Space Cowboys movie no less! Here you have the patch for this mission!
 
 image::kitchensink-patch.svg[Kitchen Sink Logo,400]
 
@@ -29,7 +31,7 @@ GH_OAUTH_CLIENT_ID=23...
 GH_OAUTH_CLIENT_SECRET=70f...
 ----
 
-Open three terminal windows, referred to as *T1*, *T2* and *T3* and change to the folder where this repository has been cloned.
+Open two terminal windows, referred to as *T1 and *T2* and change to the folder where this repository has been cloned.
 
 Run this command in *T1*:
 
