@@ -132,6 +132,9 @@ spec:
             echo "------------------------------"
             exit 1
           fi
+
+          GITEA_HOST_ROUTE=$(oc get route/repository -n gitea-system -o jsonpath='{.spec.host}')
+
           for i in $(seq 1 $COUNT); 
           do
             echo "Creating user${i}"
@@ -213,11 +216,11 @@ spec:
             git -C ${BASE_DIR}/kitchensink-conf config --local user.email "user${i}@ocp.com"
             git -C ${BASE_DIR}/kitchensink-conf config --local user.name "user${i}"
 
-            yq e -i '.projects[0].git.remotes.origin = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink/devfile.yaml
-            yq e -i '.spec.source.git.uri = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/basic/base/kitchensink-bc.yaml
+            yq e -i '.projects[0].git.remotes.origin = "https://'${GITEA_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink/devfile.yaml
+            yq e -i '.spec.source.git.uri = "https://'${GITEA_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/basic/base/kitchensink-bc.yaml
             yq e -i '.namespace = "kustomize-dev-user'${i}'"' ${BASE_DIR}/kitchensink-conf/kustomize/dev/kustomization.yml
             yq e -i '.namespace = "kustomize-test-user'${i}'"' ${BASE_DIR}/kitchensink-conf/kustomize/test/kustomization.yml
-            yq e -i '.spec.source.git.uri = "https://'${GITES_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/helm_base/templates/kitchensink-bc.yaml
+            yq e -i '.spec.source.git.uri = "https://'${GITEA_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/helm_base/templates/kitchensink-bc.yaml
 
             yq e -i '.namespace = "helm-kustomize-dev-user'${i}'"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
             yq e -i '.images[0].name = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user${i}/kitchensink:latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
