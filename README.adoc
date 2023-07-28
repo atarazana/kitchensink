@@ -823,65 +823,11 @@ Well there are a number of things different in 7.4 with regards to 7.2 but we on
 
 === Upgrade Builder Image Version
 
+*Let's upgrade the builder image from 7.2 to 7.4 BUT only helm-kustomize-dev and helm-kustomize-test for simplicity*.
+
 There are some locations where we have to upgrade the builder image:
 
-* kitchensink-conf/*basic*/base/kitchensink-bc.yaml
-* kitchensink-conf/*advanced*/helm_base/values.yaml
 * kitchensink-conf/*cicd*/values.yaml
-
-#=> kitchensink-conf/*basic*/base/kitchensink-bc.yaml#
-
-Please copy and paste the following link and open it in a browser. It will take you to file `kitchensink-conf/basic/base/kitchensink-bc.yaml` where you have to do the following change.
-
-[.console-input]
-[source,bash, subs="+attributes"]
-----
-open ${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/basic/base/kitchensink-bc.yaml#L27
-----
-
-Once there, you have to change this:
-
-[source,yaml,subs="attributes+,+macros"]
-----
-name: 'jboss-eap72-openshift:1.2'
-----
-
-With this
-
-[.console-input]
-[source,yaml,subs="attributes+,+macros"]
-----
-name: 'jboss-eap74-openjdk8-openshift:7.4.0'
-----
-
-Once you have made the changes scroll down and click on `Commit Changes`.
-
-#=> kitchensink-conf/*advanced*/helm_base/values.yaml#
-
-Next link will take you to file `kitchensink-conf/advanced/helm_base/values.yaml` where you have to do the following change.
-
-[.console-input]
-[source,bash, subs="+attributes"]
-----
-open ${GIT_SERVER}/${DEV_USERNAME}/kitchensink-conf/_edit/main/advanced/helm_base/values.yaml#L6
-----
-
-Once there, you have to change this:
-
-[source,yaml,subs="attributes+,+macros"]
-----
-builderImage: jboss-eap72-openshift:1.2
-----
-
-With this
-
-[.console-input]
-[source,yaml,subs="attributes+,+macros"]
-----
-builderImage: jboss-eap74-openjdk8-openshift:7.4.0
-----
-
-Once you have made the changes scroll down and click on `Commit Changes`.
 
 #=> kitchensink-conf/*cicd*/values.yaml#
 
@@ -954,26 +900,14 @@ TIP: The following link has a query parameter `search` which will show only the 
 open ${ARGO_SERVER}/applications?search=${DEV_USERNAME}
 ----
 
-[#rebuild-images]
-== Rebuild Images
+[#what-did-just-happen]
+== What Did Just Happen?
 
-Rebuild all images except for the ones in projects:
+Remember, you have committed and push a change in the *CODE* of *kitchensink*, because `install.sh` is *CODE* only that is _code_ to adapt the image to your needs, but *CODE*!
 
-* helm-kustomize-dev-${DEV_USERNAME}
-* helm-kustomize-test-${DEV_USERNAME}.
+As with all changes to code there is a webhook that will trigger the CI pipeline and also remember that the last action in that pipeline generates a Pull Request, it doesn't deploy the new image yet!
 
-*Why?* Because for those projects the mechanism to update the images is base on the pipeline you already know.
-
-[.console-input]
-[source,bash, subs="+attributes"]
-----
-PROJECT_BASE_LIST="argo appset-a appset-b kustomize-dev kustomize-test helm helm-kustomize-dev helm-kustomize-test s2i"
-for base in ${PROJECT_BASE_LIST};
-do
-  PROJECT_NAME=${base}-${DEV_USERNAME}
-  oc start-build bc/kitchensink -n ${PROJECT_NAME}
-done
-----
+//image::ci-pl-run.png[CI PL Run]
 
 [#final-tests]
 == Final Tests
