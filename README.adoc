@@ -768,14 +768,14 @@ Open the next link to see the the application deployed using Argo CD:
 open ${ARGO_SERVER}/applications?search=kustomized-helm
 ----
 
-Next links takes you to the pipelines view of project *elm-kustomize-dev-${DEV_USERNAME}*:
+Next links takes you to the pipelines view of project *helm-kustomize-dev-${DEV_USERNAME}*:
 
 [source,sh,attributes]
 ----
 open https://console-openshift-console.apps.${CLUSTER_DOMAIN}/topology/ns/helm-kustomize-dev-${DEV_USERNAME}?view=graph
 ----
 
-Next links takes you to the pipelines view of project *elm-kustomize-test-${DEV_USERNAME}*:
+Next links takes you to the pipelines view of project *helm-kustomize-test-${DEV_USERNAME}*:
 
 [source,sh,attributes]
 ----
@@ -825,9 +825,7 @@ Well there are a number of things different in 7.4 with regards to 7.2 but we on
 
 *Let's upgrade the builder image from 7.2 to 7.4 BUT only helm-kustomize-dev and helm-kustomize-test for simplicity*.
 
-There are some locations where we have to upgrade the builder image:
-
-* kitchensink-conf/*cicd*/values.yaml
+There is one location where we have to upgrade the builder image:
 
 #=> kitchensink-conf/*cicd*/values.yaml#
 
@@ -855,6 +853,16 @@ kitchensinkBuilderImage: jboss-eap74-openjdk8-openshift:7.4.0
 ----
 
 Once you have made the changes scroll down and click on `Commit Changes`.
+
+=== Refresh Applications in ArgoCD
+
+Now let's force the refresh of all our applications at once before we make the last change which will trigger the CI pipeline. To do that you have to go to Argo CD and click on `REFRESH APPS` then click on `ALL` as in the next picture.
+
+image::argocd-refresh-all-apps.png[Apps]
+
+Use this link to open Argo CD and see all applications then proceed as explained.
+
+TIP: The following link has a query parameter `search` which will show only the applications of *${DEV_USERNAME}*.
 
 [#update-install-script]
 === Update `install.sh`
@@ -884,16 +892,6 @@ configure_drivers ${injected_dir}/driver-postgresql.env
 
 Once you have made the changes scroll down and click on `Commit Changes`.
 
-=== Refresh Applications in ArgoCD
-
-Now let's force the refresh of all our applications at once before we make the last change which will trigger the CI pipeline. To do that you have to go to Argo CD and click on `REFRESH APPS` then click on `ALL` as in the next picture.
-
-image::argocd-refresh-all-apps.png[Apps]
-
-Use this link to open Argo CD and see all applications then proceed as explained.
-
-TIP: The following link has a query parameter `search` which will show only the applications of *${DEV_USERNAME}*.
-
 [.console-input]
 [source,bash, subs="+attributes"]
 ----
@@ -914,7 +912,9 @@ As with all changes to code there is a webhook that will trigger the CI pipeline
 
 You have made changes in install.sh which should have trigger the CI pipeline you tested before. 
 
-Let's check the version of JBoss before approving the *Pull Request* in *kitchensink-conf*.
+WARNING: Before approving the *Pull Request* in *kitchensink-conf* 
+
+Let's check the version of JBoss !!!
 
 [.console-input]
 [source,bash, subs="+attributes"]
