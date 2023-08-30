@@ -2,9 +2,47 @@ schemaVersion: 2.1.0
 metadata:
   generateName: kitchensink
 attributes:
+  .che/che-theia-plugins.yaml: |
+    - id: redhat/java11/latest
+      override:
+        sidecar: {}
+        preferences:
+          java.server.launchMode: Standard
+    - id: redhat/dependency-analytics/latest
+      override:
+        sidecar: {}
+    - id: redhat/vscode-openshift-connector/latest
+      override:
+        sidecar: {}
+    - id: redhat/vscode-xml/latest
+      override:
+        sidecar: {}
+  .vscode/extensions.json: |-
+    {
+      "recommendations": [
+        "redhat/java11",
+        "redhat/dependency-analytics",
+        "redhat/vscode-openshift-connector",
+        "redhat/vscode-xml"
+      ]
+    }
+  .vscode/launch.json: |
+    {
+    "version": "0.2.0",
+    "configurations": [
+    {
+        "type": "java",
+        "request": "attach",
+        "name": "Debug (Attach)",
+        "hostName": "localhost",
+        "port": 8000
+    }
+    ]
+    }
   controller.devfile.io/devworkspace-config:
     name: devworkspace-config
     namespace: openshift-operators
+  controller.devfile.io/scc: container-build
   controller.devfile.io/storage-type: per-user
 projects:
   - git:
@@ -16,51 +54,43 @@ components:
       controller.devfile.io/merge-contribution: true
     container:
       endpoints:
-        - exposure: none
-          name: debug
-          protocol: tcp
-          targetPort: 5005
-        - exposure: public
+        - attributes:
+            path: /
+          exposure: public
           name: landing
-          path: /
-          protocol: http
+          protocol: https
           targetPort: 8080
+        - attributes:
+            public: 'false'
+          exposure: internal
+          name: jgroups
+          protocol: http
+          targetPort: 7600
       env:
         - name: MAVEN_OPTS
-          value: "-Xmx200m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss"
+          value: '-Xmx200m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss'
         - name: JAVA_OPTS_APPEND
-          value: "-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dsun.util.logging.disableCallerCheck=true"
-        - value: '-Dmaven.repo.local=/home/jboss/.m2/repository/repository -Dcom.redhat.xpaas.repo.jbossorg'
-          name: MVN_ARGS_APPEND
-        - name: CHE_DASHBOARD_URL
-          value: 'https://devspaces.apps.cluster-j46fg.j46fg.sandbox1745.opentlc.com'
-        - name: CHE_PLUGIN_REGISTRY_URL
-          value: 'https://devspaces.apps.cluster-j46fg.j46fg.sandbox1745.opentlc.com/plugin-registry/v3'
-        - name: CHE_PLUGIN_REGISTRY_INTERNAL_URL
-          value: 'http://plugin-registry.openshift-operators.svc:8080/v3'
-        - name: OPENVSX_REGISTRY_URL
-          value: 'https://open-vsx.org'
-      # image: 'registry.redhat.io/devspaces/udi-rhel8@sha256:99ff1b5c541855e4cf368816c4bcdcdc86d32304023f72c4443213a4032ef05b'
-      # image: 'registry.redhat.io/jboss-eap-7/eap74-openjdk11-openshift-rhel8'
-      # image: registry.redhat.io/jboss-eap-7/eap74-openjdk8-openshift-rhel7
-      # image: registry.redhat.io/jboss-eap-7/eap-74-openjdk8-openshift-rhel8:7.4.11
-      image: quay.io/atarazana/kitchensink-udi:1.0.0
-      memoryLimit: 4G
+          value: '-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dsun.util.logging.disableCallerCheck=true'
+      image: registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8@sha256:647d092383a760edc083eafb2d7bc3208d6409097281bedbd5eaccde360e7e39
+      memoryLimit: 1024Mi
       mountSources: true
       sourceMapping: /projects
       volumeMounts:
         - name: m2
           path: /home/jboss/.m2
-    name: tools
+    name: maven
   - name: m2
-    volume:
-      size: 1G
+    volume: {}
 commands:
   - exec:
-      commandLine: mvn package
-      component: tools
-      group:
-        isDefault: true
-        kind: build
-      workingDir: '${PROJECTS_ROOT}/kitchensink'
-    id: 1-package
+      commandLine: mvn clean install
+      component: maven
+      label: 1. Build
+      workingDir: ${PROJECTS_ROOT}/kitchensink
+    id: build
+  - exec:
+      commandLine: mvn clean install && sleep 2 && cp target/*.war /opt/eap/standalone/deployments/ROOT.war
+      component: maven
+      label: 2. Hot update
+      workingDir: ${PROJECTS_ROOT}/kitchensink
+    id: hot-update
