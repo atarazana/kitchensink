@@ -12,7 +12,7 @@ You will start using S2I manually, then you will do automatically sing GitOps (A
 
 There's no space mission without a patch, here you have the one for this mission!
 
-image::kitchensink-patch.svg[Kitchen Sink Logo,400]
+image::kitchensink-patch-alt-1.svg[Kitchen Sink Logo,400]
 
 Good luck.
 
