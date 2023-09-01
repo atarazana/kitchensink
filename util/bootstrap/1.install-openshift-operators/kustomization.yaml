@@ -5,7 +5,7 @@ resources:
   - 0.jboss-eap-sub.yaml
   - 1.gitops-sub.yaml
   - 2.pipelines-sub.yaml
-  - 3.quay-sub.yaml
+  # - 3.quay-sub.yaml
   - 4.devspaces-sub.yaml
   - 5.web-terminal.yaml
   
