@@ -154,7 +154,7 @@ spec:
         image: quay.io/atarazana/jq:0.0.3
         env:
         - name: COUNT
-          value: "30"
+          value: "3"
         - name: SLEEP_TIME
           value: "30"
         - name: PROJECT_BASE_LIST

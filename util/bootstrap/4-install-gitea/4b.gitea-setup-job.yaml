@@ -1,0 +1,221 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: gitea-setup-job
+  namespace: gitea-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: gitea-setup
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - apps
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - image.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - apps.openshift.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - monitoring.coreos.com
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitea-setup
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: gitea-setup
+subjects:
+- kind: ServiceAccount
+  name: gitea-setup-job
+  namespace: gitea-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: gitea-setup-self-provisioner
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: self-provisioner
+subjects:
+- kind: ServiceAccount
+  name: gitea-setup-job
+  namespace: gitea-system
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  namespace: gitea-system
+  name: gitea-setup-mig
+spec:
+  backoffLimit: 10
+  template:
+    spec:
+      containers:
+      - name: worker
+        image: quay.io/atarazana/util:0.0.1
+        env:
+        - name: GITEA_HOST
+          value: repository:3000
+        - name: COUNT
+          value: "99"
+        - name: SLEEP_TIME
+          value: "30"
+        - name: PASSWORD
+          value: openshift
+        - name: KUBECONFIG
+          value: "/tmp/config"
+        - name: ADMIN_USER
+          value: "gitea"
+        - name: ADMIN_PASS
+          value: "openshift"
+        command:
+        - /bin/sh
+        - '-c'
+        args:
+        - |-
+          echo "------------------------------"
+          echo " Checking http://${GITEA_HOST}/"
+          curl -sSf -LI http://${GITEA_HOST}/
+          RET=$?
+          if [ ${RET} -ne 0 ]; then
+            echo "ERROR curl to GITEA_HOST=${GITEA_HOST} failed with ${RET}"
+            sleep ${SLEEP_TIME}
+            echo "------------------------------"
+            exit ${RET}
+          fi
+          echo "------------------------------"
+
+          GITEA_HOST_ROUTE=$(oc get route/repository -n gitea-system -o jsonpath='{.spec.host}')
+          echo "GITEA_HOST_ROUTE=${GITEA_HOST_ROUTE}"
+
+          for i in $(seq 1 $COUNT);
+          do
+            echo "Migrating repos for user${i}"
+            echo "Generating GIT_PAT for user${i}"
+            GIT_PAT=$(curl -k -s -XPOST -H "Content-Type: application/json" \
+              -d '{"name":"cicd'"${RANDOM}"'","scopes": ["repo"]}' \
+              -u user${i}:openshift \
+              http://${GITEA_HOST}/api/v1/users/user${i}/tokens | jq -r .sha1)
+            echo "GIT_PAT=${GIT_PAT}"
+
+            curl -sS -k -X 'POST' \
+                "http://${GITEA_HOST}/api/v1/repos/migrate" \
+                -H 'accept: application/json' \
+                -H  "Authorization: token ${GIT_PAT}" \
+                -H 'Content-Type: application/json' \
+                -d '{
+                "clone_addr": "https://github.com/atarazana/kitchensink.git",
+                "description": "kitchensink code",
+                "issues": false,
+                "labels": false,
+                "lfs": false,
+                "milestones": false,
+                "private": false,
+                "pull_requests": false,
+                "releases": false,
+                "repo_name": "kitchensink",
+                "repo_owner": "user'${i}'",
+                "service": "git",
+                "wiki": false
+              }'
+
+            curl -sS -k -X 'POST' \
+                "http://${GITEA_HOST}/api/v1/repos/migrate" \
+                -H 'accept: application/json' \
+                -H  "Authorization: token ${GIT_PAT}" \
+                -H 'Content-Type: application/json' \
+                -d '{
+                "clone_addr": "https://github.com/atarazana/kitchensink-conf.git",
+                "description": "kitchensink configuration",
+                "issues": false,
+                "labels": false,
+                "lfs": false,
+                "milestones": false,
+                "private": false,
+                "pull_requests": false,
+                "releases": false,
+                "repo_name": "kitchensink-conf",
+                "repo_owner": "user'${i}'",
+                "service": "git",
+                "wiki": false
+              }'
+
+
+
+            BASE_DIR=/tmp/user${i}
+            mkdir ${BASE_DIR} && cd ${BASE_DIR}
+
+            git clone http://user${i}:openshift@${GITEA_HOST}/user${i}/kitchensink ${BASE_DIR}/kitchensink
+            git clone http://user${i}:openshift@${GITEA_HOST}/user${i}/kitchensink-conf ${BASE_DIR}/kitchensink-conf
+            
+            git -C ${BASE_DIR}/kitchensink config --local user.email "user${i}@ocp.com"
+            git -C ${BASE_DIR}/kitchensink config --local user.name "user${i}"
+            git -C ${BASE_DIR}/kitchensink-conf config --local user.email "user${i}@ocp.com"
+            git -C ${BASE_DIR}/kitchensink-conf config --local user.name "user${i}"
+
+            yq e -i '.projects[0].git.remotes.origin = "https://'${GITEA_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink/devfile.yaml
+            yq e -i '.spec.source.git.uri = "https://'${GITEA_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/basic/base/kitchensink-bc.yaml
+            yq e -i '.namespace = "kustomize-dev-user'${i}'"' ${BASE_DIR}/kitchensink-conf/kustomize/dev/kustomization.yml
+            yq e -i '.namespace = "kustomize-test-user'${i}'"' ${BASE_DIR}/kitchensink-conf/kustomize/test/kustomization.yml
+            yq e -i '.spec.source.git.uri = "https://'${GITEA_HOST_ROUTE}'/user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/helm_base/templates/kitchensink-bc.yaml
+
+            yq e -i '.namespace = "helm-kustomize-dev-user'${i}'"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
+            yq e -i '.images[0].name = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user'${i}'/kitchensink:latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
+            yq e -i '.images[0].newName = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
+            yq e -i '.images[0].newTag = "latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/dev/kustomization.yml
+
+            yq e -i '.namespace = "helm-kustomize-test-user'${i}'"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/test/kustomization.yml
+            yq e -i '.images[0].name = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user'${i}'/kitchensink:latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/test/kustomization.yml
+            yq e -i '.images[0].newName = "image-registry.openshift-image-registry.svc:5000/cicd-tekton-user'${i}'/kitchensink"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/test/kustomization.yml
+            yq e -i '.images[0].newTag = "latest"' ${BASE_DIR}/kitchensink-conf/advanced/overlays/test/kustomization.yml
+
+            git -C ${BASE_DIR}/kitchensink commit -a -m "update"
+            git -C ${BASE_DIR}/kitchensink-conf commit -a -m "update"
+
+            git -C ${BASE_DIR}/kitchensink push origin main
+            git -C ${BASE_DIR}/kitchensink-conf push origin main
+
+            rm -rf  ${BASE_DIR}
+          done
+          echo "------------------------------"
+        imagePullPolicy: Always
+      restartPolicy: Never
+      serviceAccountName: gitea-setup-job

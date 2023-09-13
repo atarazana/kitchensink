@@ -2,10 +2,9 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: openshift-operators
 resources:
-  - 0.jboss-eap-sub.yaml
-  - 1.gitops-sub.yaml
-  - 2.pipelines-sub.yaml
-  # - 3.quay-sub.yaml
-  - 4.devspaces-sub.yaml
-  - 5.web-terminal.yaml
+  - jboss-eap-sub.yaml
+  - gitops-sub.yaml
+  - pipelines-sub.yaml
+  - devspaces-sub.yaml
+  - web-terminal.yaml
   
