@@ -202,6 +202,24 @@ spec:
   lookupPolicy:
     local: false
   tags:
+    - name: 1.2-23
+      annotations:
+        supports: 'eap:7.2.0,javaee:8'
+        openshift.io/display-name: Kitchensink UDI based on JBoss 7.2.9
+        sampleRef: 7.2.x
+        version: latest
+        tags: 'builder,eap,javaee,java,jboss,hidden'
+        sampleRepo: 'https://github.com/atarazana/kitchensink'
+        description: Kitchensink UDI based on JBoss 7.2.9
+        iconClass: icon-eap
+      from:
+        kind: DockerImage
+        name: quay.io/atarazana/kitchensink-udi:1.2-23
+      generation: 2
+      importPolicy:
+        importMode: Legacy
+      referencePolicy:
+        type: Local
     - name: 7.4.11
       annotations:
         supports: 'eap:7.4.0,javaee:8,java:11'

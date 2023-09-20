@@ -74,12 +74,13 @@ components:
         - name: S2I_DELETE_SOURCE
           value: "false"
         - name: S2I_DESTINATION_DIR
-          value: /projects/
+          value: /projects
         - name: CUSTOM_INSTALL_DIRECTORIES
           value: extensions
       # image: registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8@sha256:647d092383a760edc083eafb2d7bc3208d6409097281bedbd5eaccde360e7e39
-      image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:7.4.11'
-      memoryLimit: 1024Mi
+      # image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:7.4.11'
+      image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:1.2-23'
+      memoryLimit: 2048Mi
       mountSources: true
       sourceMapping: /projects
       volumeMounts:
@@ -90,14 +91,14 @@ components:
     volume: {}
 commands:
   - exec:
-      commandLine: mvn clean install
+      commandLine: /usr/local/s2i/assemble
       component: maven
-      label: 1. Build
-      workingDir: ${PROJECTS_ROOT}/kitchensink
+      label: 1. Assemble
+      workingDir: ${PROJECTS_ROOT}/src
     id: build
   - exec:
-      commandLine: mvn clean install && sleep 2 && cp target/*.war /opt/eap/standalone/deployments/ROOT.war
+      commandLine: DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/assemble
       component: maven
-      label: 2. Hot update
-      workingDir: ${PROJECTS_ROOT}/kitchensink
+      label: 2. Run
+      workingDir: ${PROJECTS_ROOT}/src
     id: hot-update
