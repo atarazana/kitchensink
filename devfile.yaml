@@ -91,13 +91,19 @@ components:
     volume: {}
 commands:
   - exec:
+      commandLine: sed -i 's|# configure_drivers ${injected_dir}/driver-postgresql.env|configure_drivers ${injected_dir}/driver-postgresql.env|g' ./extensions/install.sh
+      component: maven
+      label: 0. Prepare for 7.4
+      workingDir: ${PROJECTS_ROOT}/src
+    id: build
+  - exec:
       commandLine: /usr/local/s2i/assemble
       component: maven
       label: 1. Assemble
       workingDir: ${PROJECTS_ROOT}/src
     id: build
   - exec:
-      commandLine: DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/assemble
+      commandLine: DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
       component: maven
       label: 2. Run
       workingDir: ${PROJECTS_ROOT}/src
