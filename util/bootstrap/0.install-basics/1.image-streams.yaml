@@ -232,7 +232,7 @@ spec:
         iconClass: icon-eap
       from:
         kind: DockerImage
-        name: quay.io/atarazana/kitchensink-udi:latest
+        name: quay.io/atarazana/kitchensink-udi:7.4.11
       generation: 2
       importPolicy:
         importMode: Legacy

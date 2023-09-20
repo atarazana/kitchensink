@@ -10,9 +10,9 @@ spec:
       logLevel: INFO
     dashboard:
       headerMessage:
-        show: true
+        show: false
         text: >-
-          Kitchensink es la pera limonera
+          Welcome to the Kitchensink workathon
     metrics:
       enable: true
   containerRegistry: {}

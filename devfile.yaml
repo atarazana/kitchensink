@@ -71,6 +71,12 @@ components:
           value: '-Xmx200m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss'
         - name: JAVA_OPTS_APPEND
           value: '-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dsun.util.logging.disableCallerCheck=true'
+        - name: S2I_DELETE_SOURCE
+          value: false
+        - name: S2I_DESTINATION_DIR
+          value: /projects/
+        - name: CUSTOM_INSTALL_DIRECTORIES
+          value: extensions
       # image: registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8@sha256:647d092383a760edc083eafb2d7bc3208d6409097281bedbd5eaccde360e7e39
       image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:7.4.11'
       memoryLimit: 1024Mi
