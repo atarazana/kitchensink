@@ -43,6 +43,17 @@ RUN chgrp -R 0 /var/lib/alternatives && chmod -R g+rwX /var/lib/alternatives
 
 ADD entrypoint.sh /entrypoint.sh
 
+USER jboss
+
+ENV GIT_REPO=/opt/eap
+RUN git -C $GIT_REPO init && \
+    git config --global --add safe.directory $GIT_REPO && \
+    git config --global user.name "kitchensink" && \
+    git config --global user.email "kitchensink@example.com"
+
+RUN git -C $GIT_REPO add . && git -C $GIT_REPO commit -a -m "reset point" && \
+    chgrp -R 0 $GIT_REPO/.git && chmod -R ag=u $GIT_REPO/.git
+
 ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /projects
 CMD tail -f /dev/null
