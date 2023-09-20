@@ -97,10 +97,10 @@ commands:
       workingDir: ${PROJECTS_ROOT}/src
     id: build
   - exec:
-      commandLine: /usr/local/s2i/assemble
+      commandLine: mkdir -p artifacts/configuration && /usr/local/s2i/assemble
       component: maven
       label: 1. Assemble
-      workingDir: ${PROJECTS_ROOT}/src
+      workingDir: ${PROJECTS_ROOT}
     id: build
   - exec:
       commandLine: DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
