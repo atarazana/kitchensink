@@ -95,16 +95,22 @@ commands:
       component: maven
       label: 0. Prepare for 7.4
       workingDir: ${PROJECTS_ROOT}/src
-    id: build
+    id: prepare
   - exec:
       commandLine: mkdir -p artifacts/configuration && /usr/local/s2i/assemble
       component: maven
       label: 1. Assemble
       workingDir: ${PROJECTS_ROOT}
-    id: build
+    id: assemble
   - exec:
       commandLine: DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
       component: maven
       label: 2. Run
       workingDir: ${PROJECTS_ROOT}/src
-    id: hot-update
+    id: run
+  - exec:
+      commandLine: git -C $GIT_REPO reset --hard && git -C $GIT_REPO clean -fd && rm /deployments/ROOT.war
+      component: maven
+      label: 3. Reset
+      workingDir: ${PROJECTS_ROOT}/src
+    id: reset
