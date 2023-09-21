@@ -118,7 +118,7 @@ commands:
       workingDir: ${PROJECTS_ROOT}/src
     id: reset
 events:
-  - postStart:
+  postStart:
     - prepare
     - assemble
     - run
