@@ -10,9 +10,10 @@ spec:
       logLevel: INFO
     dashboard:
       headerMessage:
-        show: false
+        show: true
         text: >-
-          Welcome to the Kitchensink workathon
+          Kitchensink <a href="https://atarazana.github.io/kitchensink-guide"
+          target="_blank" rel="noopener noreferrer">guide</a>
     metrics:
       enable: true
   containerRegistry: {}
@@ -26,7 +27,7 @@ spec:
     defaultNamespace:
       autoProvision: true
       template: <username>-devspaces
-    secondsOfInactivityBeforeIdling: 1800
+    secondsOfInactivityBeforeIdling: 3600
     storage:
       perUserStrategyPvcConfig:
         claimSize: 3Gi
