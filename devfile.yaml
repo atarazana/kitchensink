@@ -104,9 +104,9 @@ commands:
     id: assemble
   - exec:
       commandLine: DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
-      env:
-        - name: DB_HOST_1
-          value: kitchensink-db.s2i-$(oc whoami)
+      # env:
+      #   - name: DB_HOST_1
+      #     value: kitchensink-db.s2i-$(oc whoami)
       component: maven
       label: 2. Run
       workingDir: ${PROJECTS_ROOT}/src
