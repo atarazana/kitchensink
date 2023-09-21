@@ -119,6 +119,6 @@ commands:
     id: reset
 events:
   postStart:
+    - reset
     - prepare
     - assemble
-    - run
