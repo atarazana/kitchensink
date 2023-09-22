@@ -97,13 +97,19 @@ commands:
       workingDir: ${PROJECTS_ROOT}/src
     id: prepare
   - exec:
-      commandLine: mkdir -p artifacts/configuration && /usr/local/s2i/assemble
+      commandLine: mkdir -p artifacts/configuration && mvn -f ./src/pom.xml compile
+      component: maven
+      label: 0. Compile
+      workingDir: ${PROJECTS_ROOT}
+    id: assemble
+  - exec:
+      commandLine: /usr/local/s2i/assemble
       component: maven
       label: 1. Assemble
       workingDir: ${PROJECTS_ROOT}
     id: assemble
   - exec:
-      commandLine: DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
+      commandLine: /usr/local/s2i/assemble && DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
       # env:
       #   - name: DB_HOST_1
       #     value: kitchensink-db.s2i-$(oc whoami)
@@ -121,4 +127,4 @@ events:
   postStart:
     - reset
     - prepare
-    - assemble
+    - compile
