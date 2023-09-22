@@ -94,7 +94,7 @@ commands:
       commandLine: sh s2i-prepare-cmd.sh
       component: maven
       label: 0. Prepare for 7.4 (once)
-      workingDir: ${PROJECTS_ROOT}
+      workingDir: ${PROJECTS_ROOT}/src
     id: prepare
   - exec:
       commandLine: sh s2i-build-cmd.sh
