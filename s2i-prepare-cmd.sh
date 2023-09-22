@@ -16,3 +16,4 @@ touch "$LOCKFILE"
 mkdir -p ${PROJECTS_ROOT}/artifacts/configuration && \
   sed -i 's|# configure_drivers ${injected_dir}/driver-postgresql.env|configure_drivers ${injected_dir}/driver-postgresql.env|g' ./extensions/install.sh
 
+rm "$LOCKFILE"
