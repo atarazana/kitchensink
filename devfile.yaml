@@ -101,7 +101,7 @@ commands:
       component: maven
       label: 0. Compile
       workingDir: ${PROJECTS_ROOT}
-    id: assemble
+    id: compile
   - exec:
       commandLine: /usr/local/s2i/assemble
       component: maven
