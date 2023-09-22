@@ -123,8 +123,8 @@ commands:
       label: 3. Reset
       workingDir: ${PROJECTS_ROOT}/src
     id: reset
-# events:
-#   postStart:
-#     - reset
-#     - prepare
+events:
+  postStart:
+    - reset
+    - prepare
 #     - compile
