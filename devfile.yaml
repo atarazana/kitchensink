@@ -97,18 +97,18 @@ commands:
       workingDir: ${PROJECTS_ROOT}
     id: prepare
   - exec:
-      commandLine: /usr/local/s2i/assemble
+      commandLine: s2i-build-cmd.sh
       component: maven
       label: 1. Assemble
-      workingDir: ${PROJECTS_ROOT}
+      workingDir: ${PROJECTS_ROOT}/src
     id: assemble
   - exec:
-      commandLine: /usr/local/s2i/assemble && DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
+      commandLine: s2i-run-cmd.sh
       # env:
       #   - name: DB_HOST_1
       #     value: kitchensink-db.s2i-$(oc whoami)
       component: maven
-      label: 2. Run
+      label: 2. Run (once)
       workingDir: ${PROJECTS_ROOT}/src
     id: run
   - exec:
@@ -120,5 +120,4 @@ commands:
 events:
   postStart:
     - prepare
-    - assemble
 
