@@ -13,6 +13,6 @@ fi
 touch "$LOCKFILE"
 
 # Your script logic goes here
-mkdir -p artifacts/configuration && \
-  sed -i 's|# configure_drivers ${injected_dir}/driver-postgresql.env|configure_drivers ${injected_dir}/driver-postgresql.env|g' src/extensions/install.sh
+mkdir -p ${PROJECTS_ROOT}/artifacts/configuration && \
+  sed -i 's|# configure_drivers ${injected_dir}/driver-postgresql.env|configure_drivers ${injected_dir}/driver-postgresql.env|g' ./extensions/install.sh
 
