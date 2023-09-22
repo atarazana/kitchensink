@@ -80,7 +80,7 @@ components:
       # image: registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8@sha256:647d092383a760edc083eafb2d7bc3208d6409097281bedbd5eaccde360e7e39
       image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:7.4.11'
       # image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:1.2-23'
-      memoryLimit: 2048Mi
+      memoryLimit: 3072Mi
       mountSources: true
       sourceMapping: /projects
       volumeMounts:
