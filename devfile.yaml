@@ -125,6 +125,6 @@ commands:
     id: reset
 events:
   postStart:
-    - reset
-    - prepare
+    # - reset
+    # - prepare
     # - compile
