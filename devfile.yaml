@@ -91,16 +91,16 @@ components:
     volume: {}
 commands:
   - exec:
-      commandLine: sed -i 's|# configure_drivers ${injected_dir}/driver-postgresql.env|configure_drivers ${injected_dir}/driver-postgresql.env|g' ./extensions/install.sh
+      commandLine: mkdir -p artifacts/configuration && sed -i 's|# configure_drivers ${injected_dir}/driver-postgresql.env|configure_drivers ${injected_dir}/driver-postgresql.env|g' src/extensions/install.sh
       component: maven
       label: 0. Prepare for 7.4
-      workingDir: ${PROJECTS_ROOT}/src
+      workingDir: ${PROJECTS_ROOT}
     id: prepare
   - exec:
-      commandLine: mkdir -p artifacts/configuration && mvn -f ./src/pom.xml compile
+      commandLine: mvn clean compile
       component: maven
       label: 0. Compile
-      workingDir: ${PROJECTS_ROOT}
+      workingDir: ${PROJECTS_ROOT}/src
     id: compile
   - exec:
       commandLine: /usr/local/s2i/assemble
