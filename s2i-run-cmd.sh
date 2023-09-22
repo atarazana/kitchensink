@@ -13,4 +13,7 @@ fi
 touch "$LOCKFILE"
 
 # Your script logic goes here
+git -C $GIT_REPO reset --hard && git -C $GIT_REPO clean -fd
 /usr/local/s2i/assemble && DB_HOST=kitchensink-db.s2i-$(oc whoami) DB_USERNAME=luke DB_PASSWORD=secret /usr/local/s2i/run
+
+rm "$LOCKFILE"

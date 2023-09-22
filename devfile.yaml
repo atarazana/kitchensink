@@ -91,9 +91,9 @@ components:
     volume: {}
 commands:
   - exec:
-      commandLine: mkdir -p artifacts/configuration && sed -i 's|# configure_drivers ${injected_dir}/driver-postgresql.env|configure_drivers ${injected_dir}/driver-postgresql.env|g' src/extensions/install.sh
+      commandLine: sh s2i-prepare-cmd.sh
       component: maven
-      label: 0. Prepare for 7.4
+      label: 0. Prepare for 7.4 (once)
       workingDir: ${PROJECTS_ROOT}
     id: prepare
   - exec:
@@ -108,7 +108,7 @@ commands:
       #   - name: DB_HOST_1
       #     value: kitchensink-db.s2i-$(oc whoami)
       component: maven
-      label: 2. Run (once)
+      label: 2. Run
       workingDir: ${PROJECTS_ROOT}/src
     id: run
   - exec:
