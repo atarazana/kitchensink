@@ -97,12 +97,6 @@ commands:
       workingDir: ${PROJECTS_ROOT}
     id: prepare
   - exec:
-      commandLine: mvn clean compile
-      component: maven
-      label: 0. Compile
-      workingDir: ${PROJECTS_ROOT}/src
-    id: compile
-  - exec:
       commandLine: /usr/local/s2i/assemble
       component: maven
       label: 1. Assemble
@@ -125,6 +119,5 @@ commands:
     id: reset
 events:
   postStart:
-    # - reset
     - prepare
-    - compile
+
