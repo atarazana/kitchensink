@@ -127,4 +127,4 @@ events:
   postStart:
     - reset
     - prepare
-    - compile
+    # - compile
