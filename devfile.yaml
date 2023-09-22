@@ -120,4 +120,5 @@ commands:
 events:
   postStart:
     - prepare
+    - assemble
 
