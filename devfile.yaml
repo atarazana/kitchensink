@@ -97,13 +97,13 @@ commands:
       workingDir: ${PROJECTS_ROOT}
     id: prepare
   - exec:
-      commandLine: s2i-build-cmd.sh
+      commandLine: sh s2i-build-cmd.sh
       component: maven
       label: 1. Assemble
       workingDir: ${PROJECTS_ROOT}/src
     id: assemble
   - exec:
-      commandLine: s2i-run-cmd.sh
+      commandLine: sh s2i-run-cmd.sh
       # env:
       #   - name: DB_HOST_1
       #     value: kitchensink-db.s2i-$(oc whoami)
