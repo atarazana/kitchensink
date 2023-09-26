@@ -20,7 +20,7 @@ spec:
           - name: scratch
             path: /home/user/scratch
         memoryLimit: 256Mi
-        image: quay.io/atarazana/web-terminal-tooling:1.0.1
+        image: quay.io/atarazana/web-terminal-tooling:1.0.2
         args:
           - tail
           - '-f'
@@ -36,6 +36,7 @@ spec:
 # metadata:
 #   annotations:
 #     controller.devfile.io/allow-import-from: '*'
+#     web-terminal.redhat.com/unmanaged-state: "true"
 #   name: web-terminal-exec
 #   namespace: openshift-operators
 #   labels:
@@ -62,7 +63,7 @@ spec:
 #         cpuLimit: 400m
 #         memoryLimit: 128Mi
 #         image: >-
-#           registry.redhat.io/web-terminal/web-terminal-exec-rhel8@sha256:0204154f836a1083a75386453cc58874f374b9af8db743eea800c3e104de8836
+#           registry.redhat.io/web-terminal/web-terminal-exec-rhel8@sha256:c82e89d9e8a5d1c9e5c94835d38cb601e5e1ecb1e53cb038d0423b1b19d98683
 #         endpoints:
 #           - attributes:
 #               type: main
