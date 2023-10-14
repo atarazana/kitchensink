@@ -95,7 +95,7 @@ spec:
         - name: GITEA_HOST
           value: repository:3000
         - name: COUNT
-          value: "99"
+          value: "30"
         - name: SLEEP_TIME
           value: "30"
         - name: PASSWORD
