@@ -1,49 +1,49 @@
 schemaVersion: 2.1.0
 metadata:
   generateName: kitchensink
-attributes:
-  .che/che-theia-plugins.yaml: |
-    - id: redhat/java11/latest
-      override:
-        sidecar: {}
-        preferences:
-          java.server.launchMode: Standard
-    - id: redhat/dependency-analytics/latest
-      override:
-        sidecar: {}
-    - id: redhat/vscode-openshift-connector/latest
-      override:
-        sidecar: {}
-    - id: redhat/vscode-xml/latest
-      override:
-        sidecar: {}
-  .vscode/extensions.json: |-
-    {
-      "recommendations": [
-        "redhat/java11",
-        "redhat/dependency-analytics",
-        "redhat/vscode-openshift-connector",
-        "redhat/vscode-xml"
-      ]
-    }
-  .vscode/launch.json: |
-    {
-    "version": "0.2.0",
-    "configurations": [
-    {
-        "type": "java",
-        "request": "attach",
-        "name": "Debug (Attach)",
-        "hostName": "localhost",
-        "port": 8000
-    }
-    ]
-    }
-  controller.devfile.io/devworkspace-config:
-    name: devworkspace-config
-    namespace: openshift-operators
-  controller.devfile.io/scc: container-build
-  controller.devfile.io/storage-type: per-user
+# attributes:
+#   .che/che-theia-plugins.yaml: |
+#     - id: redhat/java11/latest
+#       override:
+#         sidecar: {}
+#         preferences:
+#           java.server.launchMode: Standard
+#     - id: redhat/dependency-analytics/latest
+#       override:
+#         sidecar: {}
+#     - id: redhat/vscode-openshift-connector/latest
+#       override:
+#         sidecar: {}
+#     - id: redhat/vscode-xml/latest
+#       override:
+#         sidecar: {}
+#   .vscode/extensions.json: |-
+#     {
+#       "recommendations": [
+#         "redhat/java11",
+#         "redhat/dependency-analytics",
+#         "redhat/vscode-openshift-connector",
+#         "redhat/vscode-xml"
+#       ]
+#     }
+#   .vscode/launch.json: |
+#     {
+#     "version": "0.2.0",
+#     "configurations": [
+#     {
+#         "type": "java",
+#         "request": "attach",
+#         "name": "Debug (Attach)",
+#         "hostName": "localhost",
+#         "port": 8000
+#     }
+#     ]
+#     }
+#   controller.devfile.io/devworkspace-config:
+#     name: devworkspace-config
+#     namespace: openshift-operators
+#   controller.devfile.io/scc: container-build
+#   controller.devfile.io/storage-type: per-user
 projects:
   - git:
       remotes:
@@ -78,9 +78,13 @@ components:
         - name: CUSTOM_INSTALL_DIRECTORIES
           value: extensions
       # image: registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8@sha256:647d092383a760edc083eafb2d7bc3208d6409097281bedbd5eaccde360e7e39
-      image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:7.4.11'
       # image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:1.2-23'
-      memoryLimit: 3072Mi
+      # image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:7.4.11'
+      image: registry.redhat.io/devspaces/udi-rhel8@sha256:bb951a5040851e9f17ca0d21771b428296326753363fd4d2b87ab1f7d35e72b3
+      cpuLimit: '4'
+      cpuRequest: '1'
+      memoryLimit: 4G
+      memoryRequest: 2G
       mountSources: true
       sourceMapping: /projects
       volumeMounts:
