@@ -5,7 +5,7 @@ projects:
   - git:
       remotes:
         origin: 'https://github.com/atarazana/kitchensink'
-        ref: eap-8
+        ref: eap-8.0
     name: kitchensink
 components:
   - name: tools
