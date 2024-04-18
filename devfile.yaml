@@ -1,127 +1,37 @@
-schemaVersion: 2.1.0
+schemaVersion: 2.2.2
 metadata:
   generateName: kitchensink
-# attributes:
-#   .che/che-theia-plugins.yaml: |
-#     - id: redhat/java11/latest
-#       override:
-#         sidecar: {}
-#         preferences:
-#           java.server.launchMode: Standard
-#     - id: redhat/dependency-analytics/latest
-#       override:
-#         sidecar: {}
-#     - id: redhat/vscode-openshift-connector/latest
-#       override:
-#         sidecar: {}
-#     - id: redhat/vscode-xml/latest
-#       override:
-#         sidecar: {}
-#   .vscode/extensions.json: |-
-#     {
-#       "recommendations": [
-#         "redhat/java11",
-#         "redhat/dependency-analytics",
-#         "redhat/vscode-openshift-connector",
-#         "redhat/vscode-xml"
-#       ]
-#     }
-#   .vscode/launch.json: |
-#     {
-#     "version": "0.2.0",
-#     "configurations": [
-#     {
-#         "type": "java",
-#         "request": "attach",
-#         "name": "Debug (Attach)",
-#         "hostName": "localhost",
-#         "port": 8000
-#     }
-#     ]
-#     }
-#   controller.devfile.io/devworkspace-config:
-#     name: devworkspace-config
-#     namespace: openshift-operators
-#   controller.devfile.io/scc: container-build
-#   controller.devfile.io/storage-type: per-user
 projects:
   - git:
       remotes:
         origin: 'https://github.com/atarazana/kitchensink'
-    name: src
+        ref: eap-8
+    name: kitchensink
 components:
-  - attributes:
-      controller.devfile.io/merge-contribution: true
+  - name: tools
     container:
-      endpoints:
-        - attributes:
-            path: /
-          exposure: public
-          name: landing
-          protocol: https
-          targetPort: 8080
-        - attributes:
-            public: 'false'
-          exposure: internal
-          name: jgroups
-          protocol: http
-          targetPort: 7600
-      env:
-        - name: MAVEN_OPTS
-          value: '-Xmx200m -XX:+UseParallelGC -XX:MinHeapFreeRatio=10 -XX:MaxHeapFreeRatio=20 -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -Dsun.zip.disableMemoryMapping=true -Xms20m -Djava.security.egd=file:/dev/./urandom -Duser.home=/home/jboss'
-        - name: JAVA_OPTS_APPEND
-          value: '-Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dsun.util.logging.disableCallerCheck=true'
-        - name: S2I_DELETE_SOURCE
-          value: "false"
-        - name: S2I_DESTINATION_DIR
-          value: /projects
-        - name: CUSTOM_INSTALL_DIRECTORIES
-          value: extensions
-      # image: registry.redhat.io/jboss-eap-7/eap-xp2-openjdk11-openshift-rhel8@sha256:647d092383a760edc083eafb2d7bc3208d6409097281bedbd5eaccde360e7e39
-      # image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:1.2-23'
-      # image: 'image-registry.openshift-image-registry.svc:5000/openshift/kitchensink-udi:7.4.11'
-      image: registry.redhat.io/devspaces/udi-rhel8@sha256:bb951a5040851e9f17ca0d21771b428296326753363fd4d2b87ab1f7d35e72b3
+      image: registry.redhat.io/devspaces/udi-rhel8@sha256:b34b7d8422abb6135cbb85726949c2c52aaf854d6b1c89f6f327ddb54c8b97a5
+      memoryLimit: 3Gi
+      memoryRequest: 2Gi
       cpuLimit: '4'
       cpuRequest: '1'
-      memoryLimit: 4G
-      memoryRequest: 2G
-      mountSources: true
-      sourceMapping: /projects
+      endpoints:
+        - exposure: none
+          name: debug
+          protocol: tcp
+          targetPort: 5005
       volumeMounts:
         - name: m2
-          path: /home/jboss/.m2
-    name: maven
+          path: /home/user/.m2
   - name: m2
-    volume: {}
+    volume:
+      size: 1G
 commands:
-  - exec:
-      commandLine: sh s2i-prepare-cmd.sh
-      component: maven
-      label: 0. Prepare for 7.4 (once)
-      workingDir: ${PROJECTS_ROOT}/src
-    id: prepare
-  - exec:
-      commandLine: sh s2i-build-cmd.sh
-      component: maven
-      label: 1. Assemble
-      workingDir: ${PROJECTS_ROOT}/src
-    id: assemble
-  - exec:
-      commandLine: sh s2i-run-cmd.sh
-      # env:
-      #   - name: DB_HOST_1
-      #     value: kitchensink-db.s2i-$(oc whoami)
-      component: maven
-      label: 2. Run
-      workingDir: ${PROJECTS_ROOT}/src
-    id: run
-  - exec:
-      commandLine: git -C $GIT_REPO reset --hard && git -C $GIT_REPO clean -fd && rm /deployments/ROOT.war
-      component: maven
-      label: 3. Reset
-      workingDir: ${PROJECTS_ROOT}/src
-    id: reset
-events:
-  postStart:
-    - prepare
-
+  - id: build
+    exec:
+      component: tools
+      workingDir: ${PROJECTS_ROOT}/kitchensink
+      commandLine: mvn clean install
+      group:
+        kind: build
+        isDefault: true
