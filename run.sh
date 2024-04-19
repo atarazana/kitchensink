@@ -1,5 +1,7 @@
 #!/bin/sh
 
+./package.sh
+
 export POSTGRESQL_DATASOURCE=kitchensink
 export POSTGRESQL_DATABASE=kitchensink
 export POSTGRESQL_USER=luke
