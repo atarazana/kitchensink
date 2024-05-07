@@ -1,0 +1,1 @@
+Download JBoss EAP 7.4 and unzip here in folder jboss-eap-7.4 which is the default.
