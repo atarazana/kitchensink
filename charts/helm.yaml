@@ -11,14 +11,29 @@ build:
   contextDir: .
 deploy:
   replicas: 1
+  livenessProbe:
+    httpGet:
+      path: /health/live
+      port: admin
+    initialDelaySeconds: 5
+  readinessProbe:
+    httpGet:
+      path: /health/ready
+      port: admin
+    initialDelaySeconds: 5
+  startupProbe:
+    httpGet:
+      path: /health/live
+      port: admin
+    initialDelaySeconds: 2
   env:
     - name: POSTGRESQL_DATASOURCE
-      value: "kitchesink"
+      value: "kitchensink"
     - name: POSTGRESQL_DATABASE
-      value: "kitchensink_db"
+      value: "kitchensink"
     - name: POSTGRESQL_USER
       value: "luke"
     - name: POSTGRESQL_PASSWORD
-      value: "password"
+      value: "secret"
     - name: POSTGRESQL_HOST
-      value: "kitchensink"
+      value: "kitchensink-db"

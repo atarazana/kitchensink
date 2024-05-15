@@ -1,3 +1,3 @@
 #!/bin/sh
 
-POSTGRESQL_DRIVER_VERSION="42.2.19" mvn clean package -Popenshift
+POSTGRESQL_DRIVER_VERSION="42.7.3" mvn clean package -Popenshift

@@ -6,3 +6,6 @@ ext-compilation
 *.old
 target
 upload
+udi
+util
+scratch
