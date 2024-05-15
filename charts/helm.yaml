@@ -1,0 +1,24 @@
+# Helm values documentation: https://github.com/jbossas/eap-charts/tree/eap8/charts/eap8
+
+build:
+  env:
+    - name: POSTGRESQL_DRIVER_VERSION
+      value: "42.7.3"
+    - name: POSTGRESQL_ENABLED
+      value: "true"
+  uri: https://github.com/atarazana/kitchensink.git     
+  ref: eap-8.0                                  
+  contextDir: .
+deploy:
+  replicas: 1
+  env:
+    - name: POSTGRESQL_DATASOURCE
+      value: "kitchesink"
+    - name: POSTGRESQL_DATABASE
+      value: "kitchensink_db"
+    - name: POSTGRESQL_USER
+      value: "luke"
+    - name: POSTGRESQL_PASSWORD
+      value: "password"
+    - name: POSTGRESQL_HOST
+      value: "kitchensink"
