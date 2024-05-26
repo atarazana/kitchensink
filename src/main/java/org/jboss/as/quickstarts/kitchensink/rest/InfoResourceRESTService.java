@@ -67,13 +67,6 @@ public class InfoResourceRESTService {
             }
         }
         log.info("info() from " + hostName);
-
-        // try {
-        //     InetAddress ip = InetAddress.getLocalHost();
-        //     log.info("info() from " + ip.getHostName());
-        // } catch (UnknownHostException e) {
-        //     log.severe("UnknownHostException: " + e.getMessage());
-        // }
         
         // Get the value of system property 'main.host.weiyu' and add it to the list
         info.add("main.host.weiyu: " + System.getProperty("main.host.weiyu"));
