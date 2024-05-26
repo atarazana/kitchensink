@@ -16,8 +16,6 @@
  */
 package org.jboss.as.quickstarts.kitchensink.rest;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
