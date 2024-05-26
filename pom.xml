@@ -302,6 +302,29 @@
                             <layer>ejb</layer>
                             <layer>jsf</layer>
                           </layers>
+                          <!-- 
+                            packaging-scripts defines the scripts to be executed during the packaging phase. 
+                            In this case we are adding a system property to the server configuration.
+                            -->
+                          <packaging-scripts>
+                            <packaging-script>
+                                <scripts>
+                                    <script>./scripts/setup.cli</script>
+                                </scripts>
+                                <commands>
+                                    <command>/system-property=main.host.hal:add(value=hal-9000)</command>
+                                </commands>
+                                <!-- <properties-files>
+                                  <property-file>my-properties.properties</property-file>
+                                </properties-files>
+                                <java-opts>
+                                  <java-opt>-Xmx256m</java-opt>
+                                </java-opts> -->
+                                <!-- Expressions resolved during server execution -->
+                                <resolve-expressions>false</resolve-expressions>
+                            </packaging-script>
+                          </packaging-scripts>
+                          <!-- Name -->
                           <name>ROOT.war</name>                         
                       </configuration>
                       <executions>

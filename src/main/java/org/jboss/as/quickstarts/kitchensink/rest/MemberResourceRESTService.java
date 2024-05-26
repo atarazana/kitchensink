@@ -67,18 +67,9 @@ public class MemberResourceRESTService {
     @Inject
     MemberRegistration registration;
 
-    
-    
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Member> listAllMembers() {
-        try {
-            InetAddress ip = InetAddress.getLocalHost();
-            log.info("listAllMembers() from " + ip.getHostName());
-        } catch (UnknownHostException e) {
-            log.severe("UnknownHostException: " + e.getMessage());
-        }
-        
         return repository.findAllOrderedByName();
     }
 

@@ -3,7 +3,7 @@
 # Run this before...
 # helm repo add jboss-eap https://jbossas.github.io/eap-charts/
 
-oc new-project kitchensink-eap-8
+oc new-project kitchensink-eap-8-user2
 
 oc new-app --name=kitchensink-db \
  -e POSTGRESQL_USER=luke \
