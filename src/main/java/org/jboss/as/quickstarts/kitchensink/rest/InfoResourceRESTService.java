@@ -38,9 +38,6 @@ import org.jboss.as.quickstarts.kitchensink.service.MemberRegistration;
 @Path("/info")
 @RequestScoped
 public class InfoResourceRESTService {
-    // Static string to store the host name of the server
-    private static String hostName = "UNKNOWN";
-
     @Inject
     private Logger log;
 
@@ -55,18 +52,16 @@ public class InfoResourceRESTService {
 
         List<String> info = new ArrayList<String>();
 
-        // Get the host name of the server only if not gotten before and save it in a syncrhonized String
-        if (hostName.equals("UNKNOWN")) {
-            synchronized (hostName) {
-                try {
-                    InetAddress ip = InetAddress.getLocalHost();
-                    hostName = ip.getHostName();
-                } catch (UnknownHostException e) {
-                    log.severe("UnknownHostException: " + e.getMessage());
-                }
+        // If system property 'log.ip' is set to true, log the IP address of the client
+        if (System.getProperty("log.ip") != null && System.getProperty("log.ip").equals("true")) {
+            String ipAddress = null;
+            try {
+                ipAddress = InetAddress.getLocalHost().getHostAddress();
+            } catch (UnknownHostException e) {
+                log.severe("UnknownHostException: " + e.getMessage());
             }
+            log.info("info() from " + ipAddress);
         }
-        log.info("info() from " + hostName);
         
         // Get the value of system property 'main.host.weiyu' and add it to the list
         info.add("main.host.weiyu: " + System.getProperty("main.host.weiyu"));
