@@ -15,17 +15,20 @@ deploy:
     httpGet:
       path: /health/live
       port: admin
-    initialDelaySeconds: 5
+    initialDelaySeconds: 0
+    periodSeconds: 3
   readinessProbe:
     httpGet:
       path: /health/ready
       port: admin
-    initialDelaySeconds: 5
+    initialDelaySeconds: 1
+    periodSeconds: 3
   startupProbe:
     httpGet:
       path: /health/live
       port: admin
-    initialDelaySeconds: 2
+    initialDelaySeconds: 5
+    periodSeconds: 1
   env:
     - name: POSTGRESQL_DATASOURCE
       value: "kitchensink"

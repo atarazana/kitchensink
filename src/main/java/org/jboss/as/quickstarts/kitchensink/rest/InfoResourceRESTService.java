@@ -70,7 +70,7 @@ public class InfoResourceRESTService {
         // Get the end time of the request
         long endTime = System.currentTimeMillis();
         // Log the duration of the request
-        log.fine("info() took " + (endTime - startTime) + " milliseconds");
+        log.info("info() ===> took " + (endTime - startTime) + " milliseconds");
 
         return info;
     }
