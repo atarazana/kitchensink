@@ -1,49 +1,6 @@
 schemaVersion: 2.1.0
 metadata:
   generateName: kitchensink
-# attributes:
-#   .che/che-theia-plugins.yaml: |
-#     - id: redhat/java11/latest
-#       override:
-#         sidecar: {}
-#         preferences:
-#           java.server.launchMode: Standard
-#     - id: redhat/dependency-analytics/latest
-#       override:
-#         sidecar: {}
-#     - id: redhat/vscode-openshift-connector/latest
-#       override:
-#         sidecar: {}
-#     - id: redhat/vscode-xml/latest
-#       override:
-#         sidecar: {}
-#   .vscode/extensions.json: |-
-#     {
-#       "recommendations": [
-#         "redhat/java11",
-#         "redhat/dependency-analytics",
-#         "redhat/vscode-openshift-connector",
-#         "redhat/vscode-xml"
-#       ]
-#     }
-#   .vscode/launch.json: |
-#     {
-#     "version": "0.2.0",
-#     "configurations": [
-#     {
-#         "type": "java",
-#         "request": "attach",
-#         "name": "Debug (Attach)",
-#         "hostName": "localhost",
-#         "port": 8000
-#     }
-#     ]
-#     }
-#   controller.devfile.io/devworkspace-config:
-#     name: devworkspace-config
-#     namespace: openshift-operators
-#   controller.devfile.io/scc: container-build
-#   controller.devfile.io/storage-type: per-user
 projects:
   - git:
       remotes:
@@ -93,35 +50,4 @@ components:
     name: maven
   - name: m2
     volume: {}
-commands:
-  - exec:
-      commandLine: sh s2i-prepare-cmd.sh
-      component: maven
-      label: 0. Prepare for 7.4 (once)
-      workingDir: ${PROJECTS_ROOT}/src
-    id: prepare
-  - exec:
-      commandLine: sh s2i-build-cmd.sh
-      component: maven
-      label: 1. Assemble
-      workingDir: ${PROJECTS_ROOT}/src
-    id: assemble
-  - exec:
-      commandLine: sh s2i-run-cmd.sh
-      # env:
-      #   - name: DB_HOST_1
-      #     value: kitchensink-db.s2i-$(oc whoami)
-      component: maven
-      label: 2. Run
-      workingDir: ${PROJECTS_ROOT}/src
-    id: run
-  - exec:
-      commandLine: git -C $GIT_REPO reset --hard && git -C $GIT_REPO clean -fd && rm /deployments/ROOT.war
-      component: maven
-      label: 3. Reset
-      workingDir: ${PROJECTS_ROOT}/src
-    id: reset
-events:
-  postStart:
-    - prepare
 
