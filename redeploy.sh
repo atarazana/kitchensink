@@ -1,3 +1,3 @@
 #!/bin/sh
 
-mvn package wildfly:deploy
+mvn package -Popenshift wildfly:deploy
