@@ -45,6 +45,8 @@ deploy:
       value: "kitchensink-db"
     - name: JGROUPS_PING_PROTOCOL
       value: "dns.DNS_PING"
+    - name: WELCOME_MESSAGE
+      value: "Aloha from Kitchensink!"
     # - name: OPENSHIFT_DNS_PING_SERVICE_NAME
     #   value: "kitchensink-ping"
     # - name: OPENSHIFT_DNS_PING_SERVICE_PORT
