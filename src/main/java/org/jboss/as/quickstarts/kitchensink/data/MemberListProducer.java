@@ -33,7 +33,19 @@ public class MemberListProducer {
     @Inject
     private MemberRepository memberRepository;
 
+    private String welcomeMessage;
+
     private List<Member> members;
+
+    // @Named provides access the return value via the EL variable name "welcomeMessage" in the UI (e.g.
+    // Facelets or JSP view)
+    @Produces
+    @Named
+    public String getWelcomeMessage() {
+        // Set a welcome message from the env variable WELCOME_MESSAGE, or default to "Hello, World!"
+        welcomeMessage = System.getenv().getOrDefault("WELCOME_MESSAGE", "Hello, World!");
+        return welcomeMessage;
+    }
 
     // @Named provides access the return value via the EL variable name "members" in the UI (e.g.
     // Facelets or JSP view)

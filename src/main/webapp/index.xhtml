@@ -28,6 +28,15 @@
             <p>You have successfully deployed the JBoss Application</p>
         </div>
 
+        <!-- Welcome message -->
+        <h:panelGroup rendered="#{not empty welcomeMessage}">
+            <h2>Welcome Message</h2>
+            <p>#{welcomeMessage}</p>
+        </h:panelGroup>
+        <h:panelGroup rendered="#{empty welcomeMessage}">
+            <em>No welcome message :-(</em>
+        </h:panelGroup>
+
         <h:form id="reg">
             <h2>Member Registration</h2>
             <p>Enforces annotation-based constraints defined on the
