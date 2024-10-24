@@ -10,7 +10,10 @@ build:
   ref: eap-8.0                                  
   contextDir: .
 deploy:
-  replicas: 1
+  labels:
+    app.kubernetes.io/part-of: kitchensink-app
+    app: kitchensink-app
+  replicas: 2
   livenessProbe:
     httpGet:
       path: /health/live
@@ -40,3 +43,13 @@ deploy:
       value: "secret"
     - name: POSTGRESQL_HOST
       value: "kitchensink-db"
+    - name: JGROUPS_PING_PROTOCOL
+      value: "dns.DNS_PING"
+    # - name: OPENSHIFT_DNS_PING_SERVICE_NAME
+    #   value: "kitchensink-ping"
+    # - name: OPENSHIFT_DNS_PING_SERVICE_PORT
+    #   value: "8888"
+    # - name: JGROUPS_CLUSTER
+    #   value: "kitchensink-cluster"
+    - name: JGROUPS_CLUSTER_PASSWORD
+      value: "secret"

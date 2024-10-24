@@ -63,8 +63,8 @@ public class InfoResourceRESTService {
             log.info("info() from " + ipAddress);
         }
         
-        // Get the value of system property 'main.host.weiyu' and add it to the list
-        info.add("main.host.weiyu: " + System.getProperty("main.host.weiyu"));
+        // Get the value of system property 'main.host.wey-yu' and add it to the list
+        info.add("main.host.wey-yu: " + System.getProperty("main.host.wey-yu"));
         info.add("main.host.hal: " + System.getProperty("main.host.hal"));
 
         // Get the end time of the request
