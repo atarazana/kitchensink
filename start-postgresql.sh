@@ -1,7 +1,7 @@
 #!/bin/sh
 
-sudo podman rm pg
-sudo podman run --name pg \
+podman rm pg
+podman run --name pg \
   -p 5432:5432 \
   -e POSTGRESQL_PASSWORD=secret \
   -e POSTGRESQL_USER=luke \
